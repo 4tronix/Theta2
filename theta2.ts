@@ -254,6 +254,10 @@ namespace theta
     let leftBias = 0;
     let rightBias = 0;
 
+    let _model = RXModel.Auto;
+    let versionCode = -1;
+    const i2cACK =   0x55;	// i2c acknowledge character for terminating motor commands
+
     let startFlash = 25;
 
     // Motor Pins only used on Theta1, not Theta2
@@ -273,7 +277,6 @@ namespace theta
 
 // OUTPUT REGISTERS
     const i2cATMega   = 0x22;
-    const ATMRESET    = 20;
     const FIREDATA    =  0;
     const FIREBRT     =  1;
     const FIREUPDT    =  2;
@@ -285,10 +288,12 @@ namespace theta
     const SHIFTLEDS   = 10;
     const ROTATELEDS  = 11;
     const RAINBOW     = 12;
-    const IO_0_DATA   = 13;
-    const IO_1_DATA   = 14;
-    const IO_2_DATA   = 15;
-    const IO_3_DATA   = 16;
+    const SETPIXEL    = 13;
+    const IO_0_DATA   = 14;
+    const IO_1_DATA   = 15;
+    const IO_2_DATA   = 16;
+    const IO_3_DATA   = 17;
+    const ATMRESET    = 20;
 
 // THETA2 New I2C Commands
     const STOP	     = 21;
@@ -397,7 +402,7 @@ namespace theta
       * @param enable enable or disable Blueetoth
     */
     //% blockId="EnableBluetooth"
-    //% block="%enable|th203 Bluetooth"
+    //% block="%enable|th204 Bluetooth"
     //% blockGap=8
     export function enableBluetooth(enable: RXBluetooth)
     {
@@ -471,17 +476,6 @@ namespace theta
 		sendCommand2(PIDENABLE, 1);  // first access to BitBot Pro, so ensure PID loop is enabled
 	}
         return versionCode;
-    }
-
-// Setup Analog Data (line and Light sensors, etc, using ATMega. Also initialises Music pin)
-    function initATM()
-    {
-        if (setupATM)
-            return;
-        setupATM = true;
-
-        pins.i2cWriteNumber(_addrATM, ATMRESET, NumberFormat.Int8LE, false);
-        pins.setAudioPin(AnalogPin.P8);
     }
 
 // Motor Blocks
@@ -595,7 +589,7 @@ namespace theta
         let stopMode = 0;
         if (mode == RXStopMode.Brake)
             stopMode = 1;
-	if(isPro())
+	if(isTheta2())
 	    sendCommand2(STOP, stopMode);
 	else
 	{
@@ -807,10 +801,10 @@ namespace theta
     //% weight=80
     //% subcategory=Theta2
     //% group=Motors
-    export function arc(direction: BBDirection, speed: number, radius: number): void
+    export function arc(direction: RXDirection, speed: number, radius: number): void
     {
-	if(isPro())
-	    sendCommand4(ARC, (direction == BBDirection.Reverse) ? -speed : speed, radius & 0xff, radius >> 8);
+	if(isTheta2())
+	    sendCommand4(ARC, (direction == RXDirection.Reverse) ? -speed : speed, radius & 0xff, radius >> 8);
     }
 
     /**
@@ -950,7 +944,7 @@ namespace theta
     //% blockGap=8
     export function ledRainbow(dir: boolean): void
     {
-	sendCommand2(Rainbow, dir?1:0);
+	sendCommand2(RAINBOW, dir?1:0);
     }
 
     /**
@@ -1223,8 +1217,7 @@ namespace theta
     //% group=Sensors
     export function readLine(sensor: RXLineSensor): number
     {
-        let reg = (sensor == RXLineSensor.Left) ? LINEL : LINER;
-        return readSensor(reg);
+        return readSensor(sensor + ALINEL);
     }
 
     /**
@@ -1237,8 +1230,7 @@ namespace theta
     //% group=Sensors
     export function readLight(sensor: RXLightSensor): number
     {
-        let reg = (sensor == RXLightSensor.Left) ? LIGHTL : LIGHTR;
-        return readSensor(reg);
+        return readSensor(sensor + LIGHTL);
     }
 
     /**
