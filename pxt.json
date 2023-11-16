@@ -9,6 +9,7 @@
         "firescreen": "github:4tronix/FireScreen#0.0.5"
     },
     "files": [
+	"ircore.ts",
         "README.md",
         "theta2.ts"
     ],

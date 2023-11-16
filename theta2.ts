@@ -230,6 +230,50 @@ enum RXIOMode
 }
 
 /**
+  * IR Key code translations
+  */
+enum RXirKeys
+{
+    //% block="any"
+    Any=0,
+    //% block="0"
+    Zero=152,
+    //% block="1"
+    One=162,
+    //% block="2"
+    Two=98,
+    //% block="3"
+    Three=226,
+    //% block="4"
+    Four=34,
+    //% block="5"
+    Five=2,
+    //% block="6"
+    Six=194,
+    //% block="7"
+    Seven=224,
+    //% block="8"
+    Eight=168,
+    //% block="9"
+    Nine=144,
+    //% block="star"
+    Star=104,
+    //% block="hash"
+    Hash=176,
+    //% block="up"
+    Up=24,
+    //% block="down"
+    Down=74,
+    //% block="left"
+    Left=16,
+    //% block="right"
+    Right=90,
+    //% block="ok"
+    Ok=56
+}
+
+
+/**
  * Custom blocks
  */
 
@@ -307,6 +351,10 @@ namespace theta
     const INDICATOR  = 29; // Indicator (L/R), Value
     const SETTHRESH  = 30; // Theshold, hysteresis
     const PIDENABLE  = 31; // false/true, 0/1
+
+// THETA2 IR constants
+    const irPin = DigitalPin.P16
+    const irEvent = 1995
 
 // INPUT REGISTERS
     const VERREV =  0
@@ -402,7 +450,7 @@ namespace theta
       * @param enable enable or disable Blueetoth
     */
     //% blockId="EnableBluetooth"
-    //% block="%enable|th204 Bluetooth"
+    //% block="%enable|th205 Bluetooth"
     //% blockGap=8
     export function enableBluetooth(enable: RXBluetooth)
     {
@@ -875,6 +923,48 @@ namespace theta
     {
 	if(isTheta2())
 	    sendCommand5(SETTHRESH, threshold & 0xff, threshold >> 8, hysteresis & 0xff, hysteresis >> 8);
+    }
+
+// Infrared Receiver Bloacks
+
+    /**
+      * Action on IR message received
+      */
+    //% weight=100
+    //% blockId=onIrEvent
+    //% block="on IR key%key"
+    //% subcategory=Theta2
+    //% group=IR
+    export function onIREvent(event: RXirKeys, handler: Action)
+    {
+        irCore.initEvents(irPin)
+        control.onEvent(irEvent, <number>event, handler)
+    }
+
+    /**
+     * Check if IR key pressed
+     */
+    //% weight=90
+    //% blockId=IRKey
+    //% block="IR key%key|was pressed"
+    //% subcategory=Theta2
+    //% group=IR
+    export function irKey(key: RXirKeys): boolean
+    {
+        return (irCore.LastCode() == key)
+    }
+
+    /**
+      * Last IR Code received
+      */
+    //% weight=80
+    //% blockId=IRCode
+    //% block="IR code"
+    //% subcategory=Theta2
+    //% group=IR
+    export function irCode(): number
+    {
+	return irCore.LastCode()
     }
 
 
