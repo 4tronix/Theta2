@@ -256,19 +256,61 @@ enum RXirKeys
     Eight=168,
     //% block="9"
     Nine=144,
-    //% block="star"
+    //% block="*"
     Star=104,
-    //% block="hash"
+    //% block="#"
     Hash=176,
-    //% block="up"
+    //% block="↑"
     Up=24,
-    //% block="down"
+    //% block="↓"
     Down=74,
-    //% block="left"
+    //% block="←"
     Left=16,
-    //% block="right"
+    //% block="→"
     Right=90,
-    //% block="ok"
+    //% block="OK"
+    Ok=56
+}
+
+
+/**
+  * IR Key code translations
+  */
+enum RXirNoAny
+{
+    //% block="0"
+    Zero=152,
+    //% block="1"
+    One=162,
+    //% block="2"
+    Two=98,
+    //% block="3"
+    Three=226,
+    //% block="4"
+    Four=34,
+    //% block="5"
+    Five=2,
+    //% block="6"
+    Six=194,
+    //% block="7"
+    Seven=224,
+    //% block="8"
+    Eight=168,
+    //% block="9"
+    Nine=144,
+    //% block="*"
+    Star=104,
+    //% block="#"
+    Hash=176,
+    //% block="↑"
+    Up=24,
+    //% block="↓"
+    Down=74,
+    //% block="←"
+    Left=16,
+    //% block="→"
+    Right=90,
+    //% block="OK"
     Ok=56
 }
 
@@ -450,7 +492,7 @@ namespace theta
       * @param enable enable or disable Blueetoth
     */
     //% blockId="EnableBluetooth"
-    //% block="%enable|th205 Bluetooth"
+    //% block="%enable|th206 Bluetooth"
     //% blockGap=8
     export function enableBluetooth(enable: RXBluetooth)
     {
@@ -934,7 +976,7 @@ namespace theta
     //% blockId=onIrEvent
     //% block="on IR key%key"
     //% subcategory=Theta2
-    //% group=IR
+    //% group=InfraRed
     export function onIREvent(event: RXirKeys, handler: Action)
     {
         irCore.initEvents(irPin)
@@ -948,23 +990,36 @@ namespace theta
     //% blockId=IRKey
     //% block="IR key%key|was pressed"
     //% subcategory=Theta2
-    //% group=IR
+    //% group=InfraRed
     export function irKey(key: RXirKeys): boolean
     {
         return (irCore.LastCode() == key)
     }
 
     /**
-      * Last IR Code received
+      * Last IR Code received as number
       */
     //% weight=80
     //% blockId=IRCode
     //% block="IR code"
     //% subcategory=Theta2
-    //% group=IR
+    //% group=InfraRed
     export function irCode(): number
     {
 	return irCore.LastCode()
+    }
+
+    /**
+      * IR Key Codes as number
+      */
+    //% weight=70
+    //% blockId=IRKeyCode
+    //% block="IR Key%key"
+    //% subcategory=Theta2
+    //% group=InfraRed
+    export function irKeyCode(key: RXirNoAny): number
+    {
+	return key
     }
 
 
@@ -1049,7 +1104,7 @@ namespace theta
     //% blockGap=8
     export function ledShift(dir: boolean): void
     {
-	sendCommand2(SHIFTLEDS, 0);
+	sendCommand2(SHIFTLEDS, dir?1:0);
     }
 
     /**
@@ -1064,7 +1119,7 @@ namespace theta
     //% blockGap=8
     export function ledRotate(dir: boolean): void
     {
-	sendCommand2(ROTATELEDS, 0);
+	sendCommand2(ROTATELEDS, dir?1:0);
     }
 
     // Advanced blocks
