@@ -492,7 +492,7 @@ namespace theta
       * @param enable enable or disable Blueetoth
     */
     //% blockId="EnableBluetooth"
-    //% block="%enable|th206 Bluetooth"
+    //% block="%enable|th207 Bluetooth"
     //% blockGap=8
     export function enableBluetooth(enable: RXBluetooth)
     {
@@ -991,7 +991,7 @@ namespace theta
     //% block="IR key%key|was pressed"
     //% subcategory=Theta2
     //% group=InfraRed
-    export function irKey(key: RXirKeys): boolean
+    export function irKey(key: RXirNoAny): boolean
     {
         return (irCore.LastCode() == key)
     }
