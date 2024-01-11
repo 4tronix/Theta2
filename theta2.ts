@@ -492,7 +492,7 @@ namespace theta
       * @param enable enable or disable Blueetoth
     */
     //% blockId="EnableBluetooth"
-    //% block="%enable|th208 Bluetooth"
+    //% block="%enable|th209 Bluetooth"
     //% blockGap=8
     export function enableBluetooth(enable: RXBluetooth)
     {
@@ -933,7 +933,7 @@ namespace theta
     //% group=Motors
     export function steer(direction: number, speed: number): void
     {
-	if(isPro())
+	if(isTheta2())
 	{
 	    direction = clamp(direction, -100, 100)
 	    speed = clamp(speed, 0, 100)
