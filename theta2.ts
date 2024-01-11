@@ -492,7 +492,7 @@ namespace theta
       * @param enable enable or disable Blueetoth
     */
     //% blockId="EnableBluetooth"
-    //% block="%enable|th207 Bluetooth"
+    //% block="%enable|th208 Bluetooth"
     //% blockGap=8
     export function enableBluetooth(enable: RXBluetooth)
     {
@@ -921,6 +921,30 @@ namespace theta
     }
 
     /**
+      * Drive robot left or right depending on direction parameter. 
+      * @param direction from -100 for full left, through 0 for straight ahead, to +100 for full right
+      * @param speed speed of motor between 0 and 100. eg: 60
+      */
+    //% blockId="RXSteer" block="drive in direction%direction|at speed%speed"
+    //% speed.min=0 speed.max=100
+    //% direction.min=-100 direction.max=100
+    //% weight=60
+    //% subcategory=Theta2
+    //% group=Motors
+    export function steer(direction: number, speed: number): void
+    {
+	if(isPro())
+	{
+	    direction = clamp(direction, -100, 100)
+	    speed = clamp(speed, 0, 100)
+	    let speedL = (direction > 0) ? speed : ((100 + direction) * speed) / 100
+	    let speedR = (direction < 0) ? speed : ((100 - direction) * speed) / 100
+	    sendCommand4(DIRECTMODE, speedL, 0, 0)
+	    sendCommand4(DIRECTMODE, speedR, 0, 1)
+	}
+    }
+
+    /**
       * Enable or Disable the PID motor control. Turn Off when line following etc.
       * @param enable state of control (On or Off)
       */
@@ -953,6 +977,36 @@ namespace theta
     }
 
     /**
+      * Line position merge. -100 full left, 0 centre, +100 full right
+      */
+    //% blockId="RXMergeLine" block="line position"
+    //% weight=80
+    //% subcategory=Theta2
+    //% group="Line sensor"
+    export function mergeLinePosition(): number
+    {
+      // Read all analog sensors
+      let left = 1023 - readSensor(ALINEL)
+      let right = 1023 - readSensor(ALINER)
+      // let centre = 1023 - readSensor(ALINEC)
+      let centre = Math.min(left, right)
+      // subtract minimum value
+      let lineMin = Math.min(left, Math.min(right, centre))
+      left = left - lineMin
+      right = right - lineMin
+      centre = centre - lineMin
+      // scale all values so max = 100
+      let lineMax = Math.max(left, Math.max(right, centre))
+      left = (left * 100) / lineMax
+      right = (right * 100) / lineMax
+      centre = (centre * 100) / lineMax
+      // return the difference between left and right averages
+      let posL = (left == 0) ? 0 : (left * left) / (left + centre)
+      let posR = (right == 0) ? 0 : (right * right) / (right + centre)
+      return Math.floor(posR - posL)
+    }
+
+    /**
       * Set threshold and hysteresis for line sensors
       * @param threshold mid point between black and white. eg: 100
       * @param hysteresis deadband either side of mid point. eg: 10
@@ -967,7 +1021,7 @@ namespace theta
 	    sendCommand5(SETTHRESH, threshold & 0xff, threshold >> 8, hysteresis & 0xff, hysteresis >> 8);
     }
 
-// Infrared Receiver Bloacks
+// Infrared Receiver Blocks
 
     /**
       * Action on IR message received
