@@ -317,7 +317,7 @@ enum RXirNoAny
 
 enum RXFireControl
 {
-    //% block = "MicroBit"
+    //% block = "Microbit"
     Microbit = 0,
     //& block = "ATMega"
     ATMega = 1
@@ -503,7 +503,7 @@ namespace theta
       * @param enable enable or disable Blueetoth
     */
     //% blockId="EnableBluetooth"
-    //% block="%enable|th215 Bluetooth"
+    //% block="%enable|th216 Bluetooth"
     //% blockGap=8
     export function enableBluetooth(enable: RXBluetooth)
     {
