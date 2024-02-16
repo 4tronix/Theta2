@@ -1,5 +1,6 @@
 ﻿// Makecode for Theta and Theta2 robots
-// Board ID is 6 for Theta, 8 for Theta2.01, 9 for Theta2.02
+// Board Revision is 6 for Theta, 7 for Theta2
+// Firmware Revision is 5 for Theta2.01 and 6 for Theta2.02
 
 /**
   * Eyeball directions
@@ -341,7 +342,8 @@ namespace theta
     let rightBias = 0;
 
     let _model = RXModel.Auto;
-    let versionCode = -1;
+    let boardRevision = -1;
+    let firmwareRevision = 0
     const i2cACK =   0x55;	// i2c acknowledge character for terminating motor commands
 
     let startFlash = 25;
@@ -492,7 +494,7 @@ namespace theta
       * @param enable enable or disable Blueetoth
     */
     //% blockId="EnableBluetooth"
-    //% block="%enable|th210 Bluetooth"
+    //% block="%enable|th211 Bluetooth"
     //% blockGap=8
     export function enableBluetooth(enable: RXBluetooth)
     {
@@ -525,12 +527,12 @@ namespace theta
     //% subcategory=Theta_Model
     export function getModel(): RXModel
     {
-        getVersionCode();
+        getBoardRevision();
         if (_model == RXModel.Auto)
         {
-            if (versionCode < 5)
+            if (boardRevision == 6)
                 select_model(RXModel.Theta1);
-	    else
+	    else if (boardRevision == 7)
 		select_model(RXModel.Theta2);
         }
         return _model;
@@ -550,23 +552,39 @@ namespace theta
     }
 
     /**
-      * Get versionCode
+      * Get boardRevision
       */
-    //% blockId="getVersionCode"
-    //% block="version Code"
+    //% blockId="getBoardRevision"
+    //% block="board Revision"
     //% weight=70
     //% subcategory=Theta_Model
-    //% deprecated=true
-    export function getVersionCode(): number
+    //% deprecated=false
+    export function getBoardRevision(): number
     {
-	// 0-4 = Theta1, 5+ = Theta2
-        if (versionCode == -1)	// first time requesting
+	// 6 = Theta1, 7 = Theta2
+        if (boardRevision == -1)	// first time requesting
 	{
-	    versionCode = pins.i2cReadNumber(i2cATMega, NumberFormat.Int8LE, false) & 0xff;
-	    if(versionCode > 4) // Theta2
+	    int revisions = pins.i2cReadNumber(i2cATMega, NumberFormat.Int8LE, false)
+	    boardRevision = (revisions >> 8) & 0xff
+	    firmwareRevision = revisions & 0xff
+	    if(boardRevision == 7) // Theta2
 		sendCommand2(PIDENABLE, 1);  // first access to Theta2, so ensure PID loop is enabled
 	}
-        return versionCode;
+        return boardRevision;
+    }
+
+    /**
+      * Get firmwareRevision
+      */
+    //% blockId="getFirmwareRevision"
+    //% block="firmware Revision"
+    //% weight=60
+    //% subcategory=Theta_Model
+    //% deprecated=false
+    export function getFirmwareRevision(): number
+    {
+	getBoardRevision()
+        return firmwareRevision
     }
 
 // Motor Blocks
