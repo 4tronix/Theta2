@@ -494,7 +494,7 @@ namespace theta
       * @param enable enable or disable Blueetoth
     */
     //% blockId="EnableBluetooth"
-    //% block="%enable|th212 Bluetooth"
+    //% block="%enable|th213 Bluetooth"
     //% blockGap=8
     export function enableBluetooth(enable: RXBluetooth)
     {
@@ -564,11 +564,11 @@ namespace theta
 	// 6 = Theta1, 7 = Theta2
         if (boardRevision == -1)	// first time requesting
 	{
-	    int revisions = pins.i2cReadNumber(i2cATMega, NumberFormat.Int8LE, false);
-	    boardRevision = (revisions >> 8) & 0xff;
-	    firmwareRevision = revisions & 0xff;
+	    let revisions = pins.i2cReadNumber(i2cATMega, NumberFormat.Int8LE, false)
+	    boardRevision = (revisions >> 8) & 0xff
+	    firmwareRevision = revisions & 0xff
 	    if(boardRevision == 7) // Theta2
-		sendCommand2(PIDENABLE, 1);  // first access to Theta2, so ensure PID loop is enabled
+		sendCommand2(PIDENABLE, 1)	// first access to Theta2, so ensure PID loop is enabled
 	}
         return boardRevision;
     }
