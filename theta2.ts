@@ -503,7 +503,7 @@ namespace theta
       * @param enable enable or disable Blueetoth
     */
     //% blockId="EnableBluetooth"
-    //% block="%enable|th220 Bluetooth"
+    //% block="%enable|th221 Bluetooth"
     //% blockGap=8
     export function enableBluetooth(enable: RXBluetooth)
     {
@@ -1409,7 +1409,7 @@ namespace theta
         let buzz = flag ? 1 : 0
         if(isTheta2())
 	{
-	    if(buzz)
+	    if(flag)
 		music.ringTone(262)
 	    else
 		music.stopAllSounds()
