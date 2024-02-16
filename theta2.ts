@@ -503,7 +503,7 @@ namespace theta
       * @param enable enable or disable Blueetoth
     */
     //% blockId="EnableBluetooth"
-    //% block="%enable|th214 Bluetooth"
+    //% block="%enable|th215 Bluetooth"
     //% blockGap=8
     export function enableBluetooth(enable: RXBluetooth)
     {
@@ -552,7 +552,8 @@ namespace theta
       *
       * @param model Theta Model eg: RXModel.Theta1
       */
-    //% blockId="thetaModels" block=%model
+    //% blockId="thetaModels"
+    //% block=%model
     //% weight=80
     //% subcategory=Theta_Model
     export function RXModels(model: RXModel): number
@@ -564,10 +565,9 @@ namespace theta
       * Get board revision
       */
     //% blockId="getBoardRevision"
-    //% block="board Revision"
+    //% block="board revision"
     //% weight=70
     //% subcategory=Theta_Model
-    //% deprecated=false
     export function getBoardRevision(): number
     {
 	// 6 = Theta1, 7 = Theta2
@@ -586,19 +586,18 @@ namespace theta
       * Get firmware revision
       */
     //% blockId="getFirmwareRevision"
-    //% block="firmware Revision"
+    //% block="firmware revision"
     //% weight=60
     //% subcategory=Theta_Model
-    //% deprecated=false
     export function getFirmwareRevision(): number
     {
-	getBoardRevision();
-        return firmwareRevision;
+	getBoardRevision()
+        return firmwareRevision
     }
 
     /**
       * Set FireLeds control method
-      * @param fireCon What controls the FireLeds; Microbit or ATMega
+      * @param fireCon are the FireLeds controlled by Microbit or ATMega
       */
     //% blockId="setFireControl"
     //% block="FireLeds controlled by%fireCon"
@@ -606,7 +605,7 @@ namespace theta
     //% subcategory=Theta_Model
     export function setFireControl(fireCon: RXFireControl): void
     {
-        fireControl = fireCon;
+        fireControl = fireCon
     }
 
 // Motor Blocks
