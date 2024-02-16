@@ -503,7 +503,7 @@ namespace theta
       * @param enable enable or disable Blueetoth
     */
     //% blockId="EnableBluetooth"
-    //% block="%enable|th221 Bluetooth"
+    //% block="%enable|th222 Bluetooth"
     //% blockGap=8
     export function enableBluetooth(enable: RXBluetooth)
     {
@@ -1501,7 +1501,10 @@ namespace theta
     //% group=Sensors
     export function readBattery(): number
     {
-        return (readSensor(PSU) - 11) * 10;
+	if(isTheta2())
+	    readSensor(PSU)
+	else
+            return (readSensor(PSU) - 11) * 10
     }
 
 // EEROM Functions
