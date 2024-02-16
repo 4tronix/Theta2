@@ -1,5 +1,5 @@
 ﻿// Makecode for Theta and Theta2 robots
-// Board ID is 6 for Theta and 8 for Theta2
+// Board ID is 6 for Theta, 8 for Theta2.01, 9 for Theta2.02
 
 /**
   * Eyeball directions
@@ -492,7 +492,7 @@ namespace theta
       * @param enable enable or disable Blueetoth
     */
     //% blockId="EnableBluetooth"
-    //% block="%enable|th209 Bluetooth"
+    //% block="%enable|th210 Bluetooth"
     //% blockGap=8
     export function enableBluetooth(enable: RXBluetooth)
     {
@@ -507,7 +507,8 @@ namespace theta
       * Force Model of BitBot (Determines Pins used)
       * @param model Model of Theta; Theta1 or Theta2
       */
-    //% blockId="thetaModel" block="select Theta model%model"
+    //% blockId="setThetaModel"
+    //% block="select Theta model%model"
     //% weight=100
     //% subcategory=Theta_Model
     export function select_model(model: RXModel): void
@@ -553,8 +554,8 @@ namespace theta
       */
     //% blockId="getVersionCode"
     //% block="version Code"
-    //% weight=80
-    //% subcategory=BitBot_Model
+    //% weight=70
+    //% subcategory=Theta_Model
     //% deprecated=true
     export function getVersionCode(): number
     {
@@ -563,7 +564,7 @@ namespace theta
 	{
 	    versionCode = pins.i2cReadNumber(i2cATMega, NumberFormat.Int8LE, false) & 0xff;
 	    if(versionCode > 4) // Theta2
-		sendCommand2(PIDENABLE, 1);  // first access to BitBot Pro, so ensure PID loop is enabled
+		sendCommand2(PIDENABLE, 1);  // first access to Theta2, so ensure PID loop is enabled
 	}
         return versionCode;
     }
