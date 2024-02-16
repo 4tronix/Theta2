@@ -315,6 +315,14 @@ enum RXirNoAny
     Ok=56
 }
 
+enum RXFireControl
+{
+    //% block = "MicroBit"
+    Microbit = 0,
+    //& block = "ATMega"
+    ATMega = 1
+}
+
 
 /**
  * Custom blocks
@@ -345,6 +353,7 @@ namespace theta
     let boardRevision = -1;
     let firmwareRevision = 0
     const i2cACK =   0x55;	// i2c acknowledge character for terminating motor commands
+    let fireControl = 0		// FireLeds controlled by Microbit by default
 
     let startFlash = 25;
 
@@ -494,7 +503,7 @@ namespace theta
       * @param enable enable or disable Blueetoth
     */
     //% blockId="EnableBluetooth"
-    //% block="%enable|th213 Bluetooth"
+    //% block="%enable|th214 Bluetooth"
     //% blockGap=8
     export function enableBluetooth(enable: RXBluetooth)
     {
@@ -506,7 +515,7 @@ namespace theta
 
 // Blocks for selecting Theta Model
     /**
-      * Force Model of BitBot (Determines Pins used)
+      * Force Model of Theta (Determines Pins used)
       * @param model Model of Theta; Theta1 or Theta2
       */
     //% blockId="setThetaModel"
@@ -552,7 +561,7 @@ namespace theta
     }
 
     /**
-      * Get boardRevision
+      * Get board revision
       */
     //% blockId="getBoardRevision"
     //% block="board Revision"
@@ -564,7 +573,7 @@ namespace theta
 	// 6 = Theta1, 7 = Theta2
         if (boardRevision == -1)	// first time requesting
 	{
-	    let revisions = pins.i2cReadNumber(i2cATMega, NumberFormat.Int8LE, false)
+	    let revisions = pins.i2cReadNumber(i2cATMega, NumberFormat.UInt16LE, false)
 	    boardRevision = (revisions >> 8) & 0xff
 	    firmwareRevision = revisions & 0xff
 	    if(boardRevision == 7) // Theta2
@@ -574,7 +583,7 @@ namespace theta
     }
 
     /**
-      * Get firmwareRevision
+      * Get firmware revision
       */
     //% blockId="getFirmwareRevision"
     //% block="firmware Revision"
@@ -585,6 +594,19 @@ namespace theta
     {
 	getBoardRevision();
         return firmwareRevision;
+    }
+
+    /**
+      * Set FireLeds control method
+      * @param fireCon What controls the FireLeds; Microbit or ATMega
+      */
+    //% blockId="setFireControl"
+    //% block="FireLeds controlled by%fireCon"
+    //% weight=50
+    //% subcategory=Theta_Model
+    export function setFireControl(fireCon: RXFireControl): void
+    {
+        fireControl = fireCon;
     }
 
 // Motor Blocks
@@ -1216,7 +1238,7 @@ namespace theta
       * Set LED update mode (Manual or Automatic)
       * @param updateMode setting automatic will show LED changes automatically
       */
-    //% blockId="bitbot_set_updateMode" block="set%updateMode|update mode"
+    //% blockId="setupdateMode" block="set%updateMode|update mode"
     //% weight=90
     //% subcategory=FireLeds
     //% group=Advanced
@@ -1378,7 +1400,7 @@ namespace theta
       * Sound a buzz.
       * @param flag state of buzzer (On or Off)
       */
-    //% blockId="bitbot_buzz" block="turn buzzer%flag"
+    //% blockId="buzz" block="turn buzzer%flag"
     //% flag.shadow="toggleOnOff"
     //% weight=100
     //% subcategory="Inputs & Outputs"
