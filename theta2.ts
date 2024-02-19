@@ -1,4 +1,4 @@
-﻿// Makecode for Theta and Theta2 robots
+﻿DLINEL// Makecode for Theta and Theta2 robots
 // Board Revision is 6 for Theta, 7 for Theta2
 // Firmware Revision is 5 for Theta2.01 and 6 for Theta2.02
 
@@ -139,7 +139,9 @@ enum RXLineSensor
     //% block="left"
     Left,
     //% block="right"
-    Right
+    Right,
+    //%block="centre"
+    Centre
 }
 
 /**
@@ -424,6 +426,8 @@ namespace theta
     const INP3 =   10
     const DLINEL = 11
     const DLINER = 12
+    const DLINEC = 13
+    const ALINEC = 14
     const ACKNAK = 20
 
 // ----------------------------------------------------------
@@ -504,7 +508,7 @@ namespace theta
       * @param enable enable or disable Blueetoth
     */
     //% blockId="EnableBluetooth"
-    //% block="%enable|th224 Bluetooth"
+    //% block="%enable|th225 Bluetooth"
     //% blockGap=8
     export function enableBluetooth(enable: RXBluetooth)
     {
@@ -1012,7 +1016,7 @@ namespace theta
     export function readLineDigital(sensor: RXLineSensor): boolean
     {
 	if(isTheta2())
-	    return (readSensor(sensor + DLINEL)==0);	// Digital Line sensors are 1 (Left) and 2 (Right)
+	    return (readSensor(sensor + DLINEL)==0);	// Digital Line sensors contiguous: 11, 12, 13
 	else
 	    return false;
     }
@@ -1483,7 +1487,10 @@ namespace theta
     //% group=Sensors
     export function readLine(sensor: RXLineSensor): number
     {
-        return readSensor(sensor + ALINEL);
+	let channel = sensor + ALINEL
+	if (sensor == 2)
+	    channel = ALINEC
+        return readSensor(channel)
     }
 
     /**
