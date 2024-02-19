@@ -508,7 +508,7 @@ namespace theta
       * @param enable enable or disable Blueetoth
     */
     //% blockId="EnableBluetooth"
-    //% block="%enable|th226 Bluetooth"
+    //% block="%enable|th227 Bluetooth"
     //% blockGap=8
     export function enableBluetooth(enable: RXBluetooth)
     {
@@ -1033,8 +1033,9 @@ namespace theta
       // Read all analog sensors
       let left = 1023 - readSensor(ALINEL)
       let right = 1023 - readSensor(ALINER)
-      // let centre = 1023 - readSensor(ALINEC)
       let centre = Math.min(left, right)
+      if(getFirmwareRevision() == 6)
+          centre = 1023 - readSensor(ALINEC)
       // subtract minimum value
       let lineMin = Math.min(left, Math.min(right, centre))
       left = left - lineMin
