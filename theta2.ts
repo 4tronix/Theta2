@@ -350,7 +350,7 @@ namespace theta
     let rightBias = 0;
 
     let _model = RXModel.Auto;
-    let boardRevision = -1;
+    let boardRevision = -1
     let firmwareRevision = 0
     const i2cACK =   0x55;	// i2c acknowledge character for terminating motor commands
     let fireControl = 0		// FireLeds controlled by Microbit by default
@@ -404,6 +404,7 @@ namespace theta
     const INDICATOR  = 29; // Indicator (L/R), Value
     const SETTHRESH  = 30; // Theshold, hysteresis
     const PIDENABLE  = 31; // false/true, 0/1
+    const HEADLIGHTS = 32  // Off, On
 
 // THETA2 IR constants
     const irPin = DigitalPin.P16
@@ -503,7 +504,7 @@ namespace theta
       * @param enable enable or disable Blueetoth
     */
     //% blockId="EnableBluetooth"
-    //% block="%enable|th223 Bluetooth"
+    //% block="%enable|th224 Bluetooth"
     //% blockGap=8
     export function enableBluetooth(enable: RXBluetooth)
     {
@@ -1114,6 +1115,24 @@ namespace theta
     export function irKeyCode(key: RXirNoAny): number
     {
 	return key
+    }
+
+    /**
+      * Turn Headlights On/Off
+      * @param state headlights on (1) or off (0)
+      */
+    //% weight=110
+    //% blockId=Headlights
+    //% block="turn headlights%state"
+    //% state.shadow="toggleOnOff"
+    //% subcategory=Theta2
+    //% group=General
+    export function headlights(state: boolean): void
+    {
+        if(isTheta2())
+	{
+	    sendCommand2(HEADLIGHTS, state?1:0)
+	}
     }
 
 
