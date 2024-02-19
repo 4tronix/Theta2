@@ -1,4 +1,4 @@
-﻿DLINEL// Makecode for Theta and Theta2 robots
+﻿// Makecode for Theta and Theta2 robots
 // Board Revision is 6 for Theta, 7 for Theta2
 // Firmware Revision is 5 for Theta2.01 and 6 for Theta2.02
 
@@ -508,7 +508,7 @@ namespace theta
       * @param enable enable or disable Blueetoth
     */
     //% blockId="EnableBluetooth"
-    //% block="%enable|th225 Bluetooth"
+    //% block="%enable|th226 Bluetooth"
     //% blockGap=8
     export function enableBluetooth(enable: RXBluetooth)
     {
