@@ -524,7 +524,7 @@ namespace theta
       * @param enable enable or disable Blueetoth
     */
     //% blockId="EnableBluetooth"
-    //% block="%enable|th232 Bluetooth"
+    //% block="%enable|th233 Bluetooth"
     //% blockGap=8
     export function enableBluetooth(enable: RXBluetooth)
     {
@@ -1033,7 +1033,7 @@ namespace theta
     {
 	let loVal=0
 	let hiVal=0
-	if(sensor == RXPulseSensor.left)
+	if(sensor == RXPulseSensor.Left)
 	{
 	    loVal = readSensor(LPULSEL)
 	    hiVal = readSensor(LPULSEH)
