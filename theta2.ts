@@ -385,6 +385,8 @@ namespace theta
 // ----------------------------------------------------------
 // ATMega definitions
 
+    const reservedBytes = 50	// EEPROM bytes used for system (eg. line sensor thresholds)
+
 // OUTPUT REGISTERS
     const i2cATMega   = 0x22
     const FIREDATA    =  0
@@ -524,7 +526,7 @@ namespace theta
       * @param enable enable or disable Blueetoth
     */
     //% blockId="EnableBluetooth"
-    //% block="%enable|th233 Bluetooth"
+    //% block="%enable|th234 Bluetooth"
     //% blockGap=8
     export function enableBluetooth(enable: RXBluetooth)
     {
@@ -546,6 +548,8 @@ namespace theta
     export function select_model(model: RXModel): void
     {
         _model = model;
+	if(_model == RXModel.Theta2)
+	    startFlash = 50
     }
 
     /**
@@ -1587,8 +1591,7 @@ namespace theta
     //% group=EEROM
     export function readEEROM(location: number): number
     {
-        //return rdEEROM(location + 16); // first 16 bytes reserved for DriveStraight
-        return rdEEROM(location); // DriveStraight removed v1.1
+        return rdEEROM(location + reservedBytes); // first bytes reserved for system use
     }
 
     /**
@@ -1600,7 +1603,7 @@ namespace theta
     //% deprecated=true
     export function rdEEROM (location: number): number
     {
-	if ((location + startFlash) < 255)
+	if ((location + startFlash) <= 255)
         {
             return readSensor(location + startFlash);
         }
@@ -1620,8 +1623,7 @@ namespace theta
     //% group=EEROM
     export function writeEEROM(value: number, location: number): void
     {
-        //wrEEROM(value, location + 16); // first 16 bytes reserved for DriveStraight
-        wrEEROM(value, location + 16); // DriveStraight removed v1.1
+        wrEEROM(value, location + reservedBytes); // first bytes reserved for system use
     }
 
     /**
