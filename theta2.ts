@@ -425,6 +425,7 @@ namespace theta
     const SETTHRESH  = 30  // Theshold, hysteresis
     const PIDENABLE  = 31  // false/true, 0/1
     const HEADLIGHTS = 32  // Off, On
+    const RESETWHEEL = 33  // Left, Right, Both
 
 // THETA2 IR constants
     const irPin = DigitalPin.P16
@@ -526,7 +527,7 @@ namespace theta
       * @param enable enable or disable Blueetoth
     */
     //% blockId="EnableBluetooth"
-    //% block="%enable|th234 Bluetooth"
+    //% block="%enable|th235 Bluetooth"
     //% blockGap=8
     export function enableBluetooth(enable: RXBluetooth)
     {
@@ -1048,6 +1049,19 @@ namespace theta
 	    hiVal = readSensor(RPULSEH)
 	}
         return loVal + (hiVal << 16)
+    }
+
+    /**
+      * Reset the selected wheel sensors
+      * @param sensor left, right or both wheel sensors
+      */
+    //% blockId="RXResetWheelSensor" block="reset %sensor|wheel sensor"
+    //% weight=50
+    //% subcategory=Theta2
+    //% group=Motors
+    export function resetWheelSensor(sensor: RXMotor): void
+    {
+	sendCommand2(RESETWHEEL, sensor)
     }
 
     /**
@@ -1605,10 +1619,10 @@ namespace theta
     {
 	if ((location + startFlash) <= 255)
         {
-            return readSensor(location + startFlash);
+            return readSensor(location + startFlash) & 0xff
         }
         else
-            return 0;
+            return 0
     }
 
     /**
