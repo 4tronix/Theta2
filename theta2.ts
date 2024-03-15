@@ -156,6 +156,17 @@ enum RXLightSensor
 }
 
 /**
+  * Enumeration of pulse sensors.
+  */
+enum RXPulseSensor
+{
+    //% block="left"
+    Left,
+    //% block="right"
+    Right
+}
+
+/**
  * Ping unit for sensor.
  */
 enum RXPingUnit
@@ -375,37 +386,42 @@ namespace theta
 // ATMega definitions
 
 // OUTPUT REGISTERS
-    const i2cATMega   = 0x22;
-    const FIREDATA    =  0;
-    const FIREBRT     =  1;
-    const FIREUPDT    =  2;
-    const IO_0_CFG    =  3;
-    const IO_1_CFG    =  4;
-    const IO_2_CFG    =  5;
-    const IO_3_CFG    =  6;
-    const UPDATEMODE  =  9;
-    const SHIFTLEDS   = 10;
-    const ROTATELEDS  = 11;
-    const RAINBOW     = 12;
-    const SETPIXEL    = 13;
-    const IO_0_DATA   = 14;
-    const IO_1_DATA   = 15;
-    const IO_2_DATA   = 16;
-    const IO_3_DATA   = 17;
-    const ATMRESET    = 20;
+    const i2cATMega   = 0x22
+    const FIREDATA    =  0
+    const FIREBRT     =  1
+    const FIREUPDT    =  2
+    const IO_0_CFG    =  3
+    const IO_1_CFG    =  4
+    const IO_2_CFG    =  5
+    const IO_3_CFG    =  6
+    const UPDATEMODE  =  9
+    const SHIFTLEDS   = 10
+    const ROTATELEDS  = 11
+    const RAINBOW     = 12
+    const SETPIXEL    = 13
+    const IO_0_DATA   = 14
+    const IO_1_DATA   = 15
+    const IO_2_DATA   = 16
+    const IO_3_DATA   = 17
+    const ATMRESET    = 20
+    // Theta2 only
+    const LPULSEL     = 21  // left pulse count low word
+    const LPULSEH     = 22  // left pulse count high word
+    const RPULSEL     = 23
+    const RPULSEH     = 24
 
 // THETA2 New I2C Commands
-    const STOP	     = 21;
-    const DRIVE      = 22; // Speed +/- 100%
-    const SPIN       = 23; // Speed +/- 100%
-    const DRIVEDIST  = 24; // Speed, Distance (cm)
-    const SPINANGLE  = 25; // Speed, Angle (degrees)
-    const ARC        = 26; // Speed, Radius
-    const ARCANGLE   = 27; // Speed, Radius, Angle
-    const DIRECTMODE = 28; // Speed, Motor. For compatability with older independent motor settings
-    const INDICATOR  = 29; // Indicator (L/R), Value
-    const SETTHRESH  = 30; // Theshold, hysteresis
-    const PIDENABLE  = 31; // false/true, 0/1
+    const STOP	     = 21
+    const DRIVE      = 22  // Speed +/- 100%
+    const SPIN       = 23  // Speed +/- 100%
+    const DRIVEDIST  = 24  // Speed, Distance (cm)
+    const SPINANGLE  = 25  // Speed, Angle (degrees)
+    const ARC        = 26  // Speed, Radius
+    const ARCANGLE   = 27  // Speed, Radius, Angle
+    const DIRECTMODE = 28  // Speed, Motor. For compatability with older independent motor settings
+    const INDICATOR  = 29  // Indicator (L/R), Value
+    const SETTHRESH  = 30  // Theshold, hysteresis
+    const PIDENABLE  = 31  // false/true, 0/1
     const HEADLIGHTS = 32  // Off, On
 
 // THETA2 IR constants
@@ -508,7 +524,7 @@ namespace theta
       * @param enable enable or disable Blueetoth
     */
     //% blockId="EnableBluetooth"
-    //% block="%enable|th230 Bluetooth"
+    //% block="%enable|th231 Bluetooth"
     //% blockGap=8
     export function enableBluetooth(enable: RXBluetooth)
     {
@@ -1003,6 +1019,31 @@ namespace theta
         let enPid = enable ? 1 : 0;
 	if(isTheta2())
 	    sendCommand2(PIDENABLE, enPid);
+    }
+
+    /**
+      * Read the value of selected wheel sensor
+      * @param sensor left or right wheel sensor
+      */
+    //% blockId="RXWheelSensor" block="%sensor|wheel sensor"
+    //% weight=50
+    //% subcategory=Theta2
+    //% group=Motors
+    export function wheelSensor(sensor: RXWheelSensor): number
+    {
+	let loVal=0
+	let hiVal=0
+	if(sensor == RXWheelSensor.left)
+	{
+	    loVal = readSensor(LPULSEL)
+	    hiVal = readSensor(LPULSEH)
+	}
+	else
+	{
+	    loVal = readSensor(RPULSEL)
+	    hiVal = readSensor(RPULSEH)
+	}
+        return loVal + (hiVal << 16)
     }
 
     /**
