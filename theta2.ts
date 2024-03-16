@@ -540,7 +540,7 @@ namespace theta
       * @param enable enable or disable Blueetoth
     */
     //% blockId="EnableBluetooth"
-    //% block="%enable|th236 Bluetooth"
+    //% block="%enable|th237 Bluetooth"
     //% blockGap=8
     export function enableBluetooth(enable: RXBluetooth)
     {
@@ -1084,7 +1084,7 @@ namespace theta
     {
 	let lVal = readPulses(LPULSEL)
 	let rVal = readPulses(RPULSEL)
-	return Math.round((rVal - lVal) / 9.9)
+	return Math.round((rVal - lVal) / 19.5)
     }
 
     /**
