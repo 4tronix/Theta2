@@ -167,7 +167,7 @@ enum RXPulseSensor
 }
 
 /**
- * Ping unit for sensor.
+ * Distance unit for ultrasonic sensor
  */
 enum RXPingUnit
 {
@@ -177,6 +177,19 @@ enum RXPingUnit
     Inches,
     //% block="μs"
     MicroSeconds
+}
+
+/**
+ * Distance unit for wheel sensors
+ */
+enum RXSensorUnit
+{
+    //% block="mmm"
+    Millimeters,
+    //% block="inches"
+    Inches,
+    //% block="pulses"
+    Pulses
 }
 
 /**
@@ -527,7 +540,7 @@ namespace theta
       * @param enable enable or disable Blueetoth
     */
     //% blockId="EnableBluetooth"
-    //% block="%enable|th235 Bluetooth"
+    //% block="%enable|th236 Bluetooth"
     //% blockGap=8
     export function enableBluetooth(enable: RXBluetooth)
     {
@@ -1026,40 +1039,63 @@ namespace theta
 	    sendCommand2(PIDENABLE, enPid);
     }
 
-    /**
-      * Read the value of selected wheel sensor
-      * @param sensor left or right wheel sensor
-      */
-    //% blockId="RXWheelSensor" block="%sensor|wheel sensor"
-    //% weight=50
-    //% subcategory=Theta2
-    //% group=Motors
-    export function wheelSensor(sensor: RXPulseSensor): number
+    function readPulses(sensor: number): number
     {
 	let loVal=0
 	let hiVal=0
+	let longVal=0
+	loVal = readSensor(sensor)
+	hiVal = readSensor(sensor+1)
+	return loVal + (hiVal << 16)
+    }
+
+    /**
+      * Read the value of selected wheel sensor
+      * @param sensor left or right wheel sensor
+      * @param unit parameter conversion (mm, inch, pulses)
+      */
+    //% blockId="RXWheelSensor" block="%sensor|wheel sensor%unit"
+    //% weight=50
+    //% subcategory=Theta2
+    //% group=Motors
+    export function wheelSensor(sensor: RXPulseSensor, unit: RXSensorUnit): number
+    {
+	let longVal=0
 	if(sensor == RXPulseSensor.Left)
-	{
-	    loVal = readSensor(LPULSEL)
-	    hiVal = readSensor(LPULSEH)
-	}
+	    longVal = readPulses(LPULSEL)
 	else
+	    longVal = readPulses(RPULSEL)
+	switch(unit)
 	{
-	    loVal = readSensor(RPULSEL)
-	    hiVal = readSensor(RPULSEH)
+	    case RXSensorUnit.Millimeters: return Math.round(longVal / 10.05); break
+	    case RXSensorUnit.Inches: return Math.round(longVal / 255.27); break
+	    default: return longVal; break
 	}
-        return loVal + (hiVal << 16)
+    }
+
+    /**
+      * Estimate angle turned
+      */
+    //% blockId="RXTurnAngle" block="angle turned"
+    //% weight=40
+    //% subcategory=Theta2
+    //% group=Motors
+    export function turnAngle(): number
+    {
+	let lVal = readPulses(LPULSEL)
+	let rVal = readPulses(RPULSEL)
+	return Math.round((rVal - lVal) / 9.9)
     }
 
     /**
       * Reset the selected wheel sensors
       * @param sensor left, right or both wheel sensors
       */
-    //% blockId="RXResetWheelSensor" block="reset %sensor|wheel sensor"
-    //% weight=50
+    //% blockId="RXResetWheelSensors" block="reset %sensor|wheel sensors"
+    //% weight=30
     //% subcategory=Theta2
     //% group=Motors
-    export function resetWheelSensor(sensor: RXMotor): void
+    export function resetWheelSensors(sensor: RXMotor): void
     {
 	sendCommand2(RESETWHEEL, sensor)
     }
