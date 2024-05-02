@@ -374,6 +374,7 @@ namespace theta
     let oled: firescreen.Screen;
     let leftBias = 0;
     let rightBias = 0;
+    let pidEnable = true
 
     let _model = RXModel.Auto;
     let boardRevision = -1
@@ -381,7 +382,7 @@ namespace theta
     const i2cACK =   0x55;	// i2c acknowledge character for terminating motor commands
     let fireControl = 0		// FireLeds controlled by Microbit by default
 
-    let startFlash = 25;
+    let startFlash = 50;
 
     // Motor Pins only used on Theta1, not Theta2
     const lMotorD0 = DigitalPin.P14;
@@ -419,11 +420,6 @@ namespace theta
     const IO_2_DATA   = 16
     const IO_3_DATA   = 17
     const ATMRESET    = 20
-    // Theta2 only
-    const LPULSEL     = 21  // left pulse count low word
-    const LPULSEH     = 22  // left pulse count high word
-    const RPULSEL     = 23
-    const RPULSEH     = 24
 
 // THETA2 New I2C Commands
     const STOP	     = 21
@@ -461,6 +457,11 @@ namespace theta
     const DLINEC = 13
     const ALINEC = 14
     const ACKNAK = 20
+    // Theta2 only
+    const LPULSEL     = 21  // left pulse count low word
+    const LPULSEH     = 22  // left pulse count high word
+    const RPULSEL     = 23
+    const RPULSEH     = 24
 
 // ----------------------------------------------------------
 
@@ -540,7 +541,7 @@ namespace theta
       * @param enable enable or disable Blueetoth
     */
     //% blockId="EnableBluetooth"
-    //% block="%enable|th237 Bluetooth"
+    //% block="%enable|th238 Bluetooth"
     //% blockGap=8
     export function enableBluetooth(enable: RXBluetooth)
     {
@@ -616,7 +617,10 @@ namespace theta
 	    boardRevision = (revisions >> 8) & 0xff
 	    firmwareRevision = revisions & 0xff
 	    if(boardRevision == 7) // Theta2
+	    {
+		pidEnable = true
 		sendCommand2(PIDENABLE, 1)	// first access to Theta2, so ensure PID loop is enabled
+	    }
 	}
         return boardRevision;
     }
@@ -674,7 +678,7 @@ namespace theta
     //% blockGap=8
     export function robotGo(direction: RXDirection, speed: number): void
     {
-	if(isTheta2())
+	if(isTheta2() && pidEnable)
 	    sendCommand2(DRIVE, (direction == RXDirection.Reverse) ? -speed : speed);
 	else
             motorMove(RXMotor.Both, direction, speed);
@@ -710,7 +714,7 @@ namespace theta
     //% blockGap=8
     export function robotRotate(direction: RXRobotDirection, speed: number): void
     {
-	if(isTheta2())
+	if(isTheta2() && pidEnable)
 	    sendCommand2(SPIN, (direction == RXRobotDirection.Right) ? -speed : speed);
 	else
 	{
@@ -1034,9 +1038,10 @@ namespace theta
     //% group=Motors
     export function enablePID(enable: boolean): void
     {
-        let enPid = enable ? 1 : 0;
+        let enPid = enable ? 1 : 0
 	if(isTheta2())
-	    sendCommand2(PIDENABLE, enPid);
+	    sendCommand2(PIDENABLE, enPid)
+	pidEnable = enable
     }
 
     function readPulses(sensor: number): number
