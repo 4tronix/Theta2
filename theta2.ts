@@ -375,6 +375,10 @@ namespace theta
     let leftBias = 0;
     let rightBias = 0;
     let pidEnable = true
+    let lastCommand = cSTOP
+    let lastDirection = RXDirection.Forward
+    let lastSDirection = RXRobotDirection.Right
+    let lastSpeed = 0
 
     let _model = RXModel.Auto;
     let boardRevision = -1
@@ -463,6 +467,10 @@ namespace theta
     const RPULSEL     = 23
     const RPULSEH     = 24
 
+    const cGO	= 1
+    const cSTOP	= 2
+    const cSPIN = 3
+
 // ----------------------------------------------------------
 
     let setupATM = false;
@@ -541,7 +549,7 @@ namespace theta
       * @param enable enable or disable Blueetoth
     */
     //% blockId="EnableBluetooth"
-    //% block="%enable|th238 Bluetooth"
+    //% block="%enable|th239 Bluetooth"
     //% blockGap=8
     export function enableBluetooth(enable: RXBluetooth)
     {
@@ -679,7 +687,13 @@ namespace theta
     export function robotGo(direction: RXDirection, speed: number): void
     {
 	if(isTheta2() && pidEnable)
-	    sendCommand2(DRIVE, (direction == RXDirection.Reverse) ? -speed : speed);
+	{
+	    if(lastCommand!=cGO || lastDirection!=direction || lastSpeed!=speed)
+		sendCommand2(DRIVE, (direction == RXDirection.Reverse) ? -speed : speed)
+	    lastCommand = cGO
+	    lastDirection = direction
+	    lastSpeed = speed
+	}
 	else
             motorMove(RXMotor.Both, direction, speed);
     }
@@ -715,7 +729,14 @@ namespace theta
     export function robotRotate(direction: RXRobotDirection, speed: number): void
     {
 	if(isTheta2() && pidEnable)
-	    sendCommand2(SPIN, (direction == RXRobotDirection.Right) ? -speed : speed);
+	{
+	    pidActive = true
+	    if(lastCommand!=cSPIN || lastSDirection!=direction || lastSpeed!=speed)
+		sendCommand2(SPIN, (direction == RXRobotDirection.Right) ? -speed : speed);
+	    lastCommand = cSPIN
+	    lastSDirection = direction
+	    lastSpeed = speed
+	}
 	else
 	{
             if (direction == RXRobotDirection.Left)
@@ -744,9 +765,9 @@ namespace theta
     //% blockGap=8
     export function robotRotatems(direction: RXRobotDirection, speed: number, milliseconds: number): void
     {
-        robotRotate(direction, speed);
-        basic.pause(milliseconds);
-        robotStop(RXStopMode.Coast);
+        robotRotate(direction, speed)
+        basic.pause(milliseconds)
+        robotStop(RXStopMode.Coast)
     }
 
     /**
@@ -759,17 +780,20 @@ namespace theta
     //% blockGap=8
     export function robotStop(mode: RXStopMode): void
     {
-        let stopMode = 0;
+        let stopMode = 0
         if (mode == RXStopMode.Brake)
-            stopMode = 1;
+            stopMode = 1
 	if(isTheta2())
-	    sendCommand2(STOP, stopMode);
+	{
+	    sendCommand2(STOP, stopMode)
+	    lastCommand = cSTOP
+	}
 	else
 	{
-            pins.digitalWritePin(lMotorD0, stopMode);
-            pins.digitalWritePin(lMotorD1, stopMode);
-            pins.digitalWritePin(rMotorD0, stopMode);
-            pins.digitalWritePin(rMotorD1, stopMode);
+            pins.digitalWritePin(lMotorD0, stopMode)
+            pins.digitalWritePin(lMotorD1, stopMode)
+            pins.digitalWritePin(rMotorD0, stopMode)
+            pins.digitalWritePin(rMotorD1, stopMode)
 	}
     }
 
