@@ -375,11 +375,6 @@ namespace theta
     let leftBias = 0;
     let rightBias = 0;
     let pidEnable = true
-    let lastCommand = cSTOP
-    let lastDirection = RXDirection.Forward
-    let lastSDirection = RXRobotDirection.Right
-    let lastSpeed = 0
-
     let _model = RXModel.Auto;
     let boardRevision = -1
     let firmwareRevision = 0
@@ -470,6 +465,11 @@ namespace theta
     const cGO	= 1
     const cSTOP	= 2
     const cSPIN = 3
+    let lastCommand = cSTOP
+    let lastDirection = RXDirection.Forward
+    let lastSDirection = RXRobotDirection.Right
+    let lastSpeed = 0
+
 
 // ----------------------------------------------------------
 
@@ -549,7 +549,7 @@ namespace theta
       * @param enable enable or disable Blueetoth
     */
     //% blockId="EnableBluetooth"
-    //% block="%enable|th239 Bluetooth"
+    //% block="%enable|th240 Bluetooth"
     //% blockGap=8
     export function enableBluetooth(enable: RXBluetooth)
     {
@@ -730,7 +730,6 @@ namespace theta
     {
 	if(isTheta2() && pidEnable)
 	{
-	    pidActive = true
 	    if(lastCommand!=cSPIN || lastSDirection!=direction || lastSpeed!=speed)
 		sendCommand2(SPIN, (direction == RXRobotDirection.Right) ? -speed : speed);
 	    lastCommand = cSPIN
