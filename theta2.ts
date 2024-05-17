@@ -434,6 +434,7 @@ namespace theta
     const PIDENABLE  = 31  // false/true, 0/1
     const HEADLIGHTS = 32  // Off, On
     const RESETWHEEL = 33  // Left, Right, Both
+    const SETTRIMS   = 34  // trimDistance and trimAngle. Both -100 to +100
 
 // THETA2 IR constants
     const irPin = DigitalPin.P16
@@ -549,7 +550,7 @@ namespace theta
       * @param enable enable or disable Blueetoth
     */
     //% blockId="EnableBluetooth"
-    //% block="%enable|th240 Bluetooth"
+    //% block="%enable|th242 Bluetooth"
     //% blockGap=8
     export function enableBluetooth(enable: RXBluetooth)
     {
@@ -731,7 +732,7 @@ namespace theta
 	if(isTheta2() && pidEnable)
 	{
 	    if(lastCommand!=cSPIN || lastSDirection!=direction || lastSpeed!=speed)
-		sendCommand2(SPIN, (direction == RXRobotDirection.Right) ? -speed : speed);
+		sendCommand2(SPIN, (direction == RXRobotDirection.Right) ? -speed : speed)
 	    lastCommand = cSPIN
 	    lastSDirection = direction
 	    lastSpeed = speed
@@ -833,6 +834,7 @@ namespace theta
     {
         let lSpeed = 0;
         let rSpeed = 0;
+	lastCommand = cDIRECT
 	getModel();
         speed = clamp(speed, 0, 100);
 	// Removed v1.1: createCalib(speed); // sets bias values for "DriveStraight"
@@ -957,6 +959,7 @@ namespace theta
     //% group=Motors
     export function gocm(direction: RXDirection, speed: number, distance: number): void
     {
+	lastCommand = cGOCM
 	if(isTheta2())
 	{
 	    sendCommand4(DRIVEDIST, (direction == RXDirection.Reverse) ? -speed : speed, distance & 0xff, distance >> 8);
@@ -978,6 +981,7 @@ namespace theta
     //% group=Motors
     export function spinDeg(direction: RXRobotDirection, speed: number, angle: number): void
     {
+	lastCommand = cSPINDEG
 	if(isTheta2())
 	{
 	    sendCommand4(SPINANGLE, (direction == RXRobotDirection.Right) ? -speed : speed, angle & 0xff, angle >> 8);
@@ -999,6 +1003,7 @@ namespace theta
     //% group=Motors
     export function arc(direction: RXDirection, speed: number, radius: number): void
     {
+	lastCommand = cARC
 	if(isTheta2())
 	    sendCommand4(ARC, (direction == RXDirection.Reverse) ? -speed : speed, radius & 0xff, radius >> 8);
     }
@@ -1018,6 +1023,7 @@ namespace theta
     //% group=Motors
     export function arcdeg(direction: RXDirection, speed: number, radius: number, angle: number): void
     {
+	lastCommand = cARCDEG
 	if(isTheta2())
 	{
 	    sendCommand6(ARCANGLE, (direction == RXDirection.Reverse) ? -speed : speed, radius & 0xff, radius >> 8, angle & 0xff, angle >>8);
@@ -1039,6 +1045,7 @@ namespace theta
     //% group=Motors
     export function steer(direction: number, speed: number): void
     {
+	lastCommand = cSTEER
 	if(isTheta2())
 	{
 	    direction = clamp(direction, -100, 100)
@@ -1126,6 +1133,25 @@ namespace theta
     export function resetWheelSensors(sensor: RXMotor): void
     {
 	sendCommand2(RESETWHEEL, sensor)
+    }
+
+    /**
+      * Set wheel dimension trims
+      * @param trimDistance adjustment for distance travelled (+/- 100). eg: 0
+      * @param trimAngle adjustment for angle turned (+/- 100). eg: 0
+      */
+    //% blockId="RXMotorTrim"
+    //% block="trim distance%trimDistance|angle%ytrimAngle"
+    //% weight=20
+    //% trimDistance.min=-100 trimDistance.max=100
+    //% trimAngle.min=-100 trimAngle.max=100
+    //% subcategory=Theta2
+    //% group=Motors
+    export function motorTrim(trimDistance: number, trimAngle: number): void
+    {
+	let dTrim = clamp(trimDistance, -100, 100)
+	let aTrim = clamp(trimAngle, -100, 100)
+	sendCommand3(SETTRIMS, dTrim, aTrim)
     }
 
     /**
