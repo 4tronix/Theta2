@@ -464,15 +464,15 @@ namespace theta
     const RPULSEH     = 24
 
 // Motor Command Tracking
-    #define cGO      1
-    #define cSTOP    2
-    #define cSPIN    3
-    #define cDIRECT  4
-    #define cGOCM    5
-    #define cSPINDEG 6
-    #define cARC     7
-    #define cARCDEG  8
-    #define cSTEER   9
+    const cGO      = 1
+    const cSTOP    = 2
+    const cSPIN    = 3
+    const cDIRECT  = 4
+    const cGOCM    = 5
+    const cSPINDEG = 6
+    const cARC     = 7
+    const cARCDEG  = 8
+    const cSTEER   = 9
 
     let lastCommand = cSTOP
     let lastDirection = RXDirection.Forward
@@ -558,7 +558,7 @@ namespace theta
       * @param enable enable or disable Blueetoth
     */
     //% blockId="EnableBluetooth"
-    //% block="%enable|th243 Bluetooth"
+    //% block="%enable|th244 Bluetooth"
     //% blockGap=8
     export function enableBluetooth(enable: RXBluetooth)
     {
