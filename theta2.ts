@@ -88,6 +88,21 @@ enum RXDirection
 }
 
 /**
+  * Enumeration of Arc movement directions
+  */
+enum RXArcDirection
+{
+    //% block="forward left"
+    ForwardLeft,
+    //% block="forward right"
+    ForwardRight,
+    //% block="reverse left"
+    ReverseLeft,
+    //% block="reverse right"
+    ReverseRight
+}
+
+/**
   * Enumeration of directions.
   */
 enum RXRobotDirection
@@ -558,7 +573,7 @@ namespace theta
       * @param enable enable or disable Blueetoth
     */
     //% blockId="EnableBluetooth"
-    //% block="%enable|th244 Bluetooth"
+    //% block="%enable|th245 Bluetooth"
     //% blockGap=8
     export function enableBluetooth(enable: RXBluetooth)
     {
@@ -1009,11 +1024,14 @@ namespace theta
     //% weight=80
     //% subcategory=Theta2
     //% group=Motors
-    export function arc(direction: RXDirection, speed: number, radius: number): void
+    export function arc(direction: RXArcDirection, speed: number, radius: number): void
     {
 	lastCommand = cARC
 	if(isTheta2())
-	    sendCommand4(ARC, (direction == RXDirection.Reverse) ? -speed : speed, radius & 0xff, radius >> 8);
+	{
+	    let aSpeed = ((direction == RXArcDirection.ReverseLeft) || (direction == RXArcDirection.ReverseRight)) ? -speed : speed
+	    sendCommand4(ARC, aSpeed, radius & 0xff, radius >> 8)
+	}
     }
 
     /**
@@ -1029,14 +1047,16 @@ namespace theta
     //% inlineInputMode=inline
     //% subcategory=Theta2
     //% group=Motors
-    export function arcdeg(direction: RXDirection, speed: number, radius: number, angle: number): void
+    export function arcdeg(direction: RXArcDirection, speed: number, radius: number, angle: number): void
     {
 	lastCommand = cARCDEG
 	if(isTheta2())
 	{
-	    sendCommand6(ARCANGLE, (direction == RXDirection.Reverse) ? -speed : speed, radius & 0xff, radius >> 8, angle & 0xff, angle >>8);
+	    let aSpeed = ((direction == RXArcDirection.ReverseLeft) || (direction == RXArcDirection.ReverseRight)) ? -speed : speed
+	    let aAngle = ((direction == RXArcDirection.ForwardRight) || (direction == RXArcDirection.ReverseRight)) ? -angle : angle
+	    sendCommand6(ARCANGLE, aSpeed, radius & 0xff, radius >> 8, angle & 0xff, angle >>8)
 	    // wait for function complete
-	    waitForAck();
+	    waitForAck()
 	}
     }
 
