@@ -387,7 +387,7 @@ namespace theta
     let mouthEeeh: number[] = [0,1,2,3,4,5,6,7,8,9]
     let palette: number[] = [0xFF0000, 0x659900, 0x18E600, 0x80FF00, 0x00FF00, 0xFF8000, 0xD82600, 0xB24C00, 0x00FFC0, 0x00FF80, 0xFFC000, 0xFF0080, 0xFF00FF, 0xB09EFF, 0x00FFFF, 0xFFFF00, 0x8000FF, 0x0080FF, 0x0000FF, 0xFFFFFF, 0xFF8080, 0x80FF80, 0x40C0FF, 0x999999, 0x000000]
     let oled: firescreen.Screen;
-    let leftBias = 
+    let leftBias = 0
     let rightBias = 0
     let pidEnable = true
     let _model = RXModel.Auto
@@ -574,7 +574,7 @@ namespace theta
       * @param enable enable or disable Blueetoth
     */
     //% blockId="EnableBluetooth"
-    //% block="%enable|th248 Bluetooth"
+    //% block="%enable|th249 Bluetooth"
     //% blockGap=8
     export function enableBluetooth(enable: RXBluetooth)
     {
