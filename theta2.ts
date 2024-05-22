@@ -575,7 +575,7 @@ namespace theta
       * @param enable enable or disable Blueetoth
     */
     //% blockId="EnableBluetooth"
-    //% block="%enable|th251 Bluetooth"
+    //% block="%enable|th252 Bluetooth"
     //% blockGap=8
     export function enableBluetooth(enable: RXBluetooth)
     {
@@ -1191,26 +1191,29 @@ namespace theta
     //% group="Line sensor"
     export function mergeLinePosition(): number
     {
-      // Read all analog sensors
-      let left = 1023 - readSensor(ALINEL)
-      let right = 1023 - readSensor(ALINER)
-      let centre = Math.min(left, right)
-      //if(getFirmwareRevision() == 6)
-          //centre = 1023 - readSensor(ALINEC)
-      // subtract minimum value
-      let lineMin = Math.min(left, Math.min(right, centre))
-      left = left - lineMin
-      right = right - lineMin
-      centre = centre - lineMin
-      // scale all values so max = 100
-      let lineMax = Math.max(left, Math.max(right, centre))
-      left = (left * 100) / lineMax
-      right = (right * 100) / lineMax
-      centre = (centre * 100) / lineMax
-      // return the difference between left and right averages
-      let posL = (left == 0) ? 0 : (left * left) / (left + centre)
-      let posR = (right == 0) ? 0 : (right * right) / (right + centre)
-      return Math.floor(posR - posL)
+	if(isTheta2())
+	{
+	    // Read all analog sensors
+	    let left = 1023 - readSensor(ALINEL)
+	    let right = 1023 - readSensor(ALINER)
+	    let centre = 1023 - readSensor(ALINEC)
+	    // subtract minimum value
+	    let lineMin = Math.min(left, Math.min(right, centre))
+	    left = left - lineMin
+	    right = right - lineMin
+	    centre = centre - lineMin
+	    // scale all values so max = 100
+	    let lineMax = Math.max(left, Math.max(right, centre))
+	    left = (left * 100) / lineMax
+	    right = (right * 100) / lineMax
+	    centre = (centre * 100) / lineMax
+	    // return the difference between left and right averages
+	    let posL = (left == 0) ? 0 : (left * left) / (left + centre)
+	    let posR = (right == 0) ? 0 : (right * right) / (right + centre)
+	    return Math.floor(posR - posL)
+	}
+	else
+	    return 0
     }
 
     /**
