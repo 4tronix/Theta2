@@ -573,7 +573,7 @@ namespace theta
       * @param enable enable or disable Blueetoth
     */
     //% blockId="EnableBluetooth"
-    //% block="%enable|th246 Bluetooth"
+    //% block="%enable|th247 Bluetooth"
     //% blockGap=8
     export function enableBluetooth(enable: RXBluetooth)
     {
@@ -1030,7 +1030,14 @@ namespace theta
 	if(isTheta2())
 	{
 	    let aSpeed = ((direction == RXArcDirection.ReverseLeft) || (direction == RXArcDirection.ReverseRight)) ? -speed : speed
-	    sendCommand4(ARC, aSpeed, radius & 0xff, radius >> 8)
+	    if((direction == RXArcDirection.ForwardRight) || (direction == RXArcDirection.ReverseRight))
+	    	sendCommand4(ARC, aSpeed, radius & 0xff, radius >> 8)
+	    else  // now fudge the unterminated Arc command with a very long terminated arc
+	    {
+		let aAngle = 32767
+		sendCommand6(ARCANGLE, aSpeed, radius & 0xff, radius >> 8, aAngle & 0xff, aAngle >>8)
+		// NB. do not wait for Ack
+	    }
 	}
     }
 
