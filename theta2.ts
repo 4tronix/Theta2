@@ -494,6 +494,7 @@ namespace theta
     let lastSDirection = RXRobotDirection.Right
     let lastADirection = RXArcDirection.ForwardLeft
     let lastSpeed = 0
+    let lastRadius = 0
 
 
 // ----------------------------------------------------------
@@ -574,7 +575,7 @@ namespace theta
       * @param enable enable or disable Blueetoth
     */
     //% blockId="EnableBluetooth"
-    //% block="%enable|th249 Bluetooth"
+    //% block="%enable|th250 Bluetooth"
     //% blockGap=8
     export function enableBluetooth(enable: RXBluetooth)
     {
