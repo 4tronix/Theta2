@@ -373,42 +373,42 @@ enum RXirNoAny
 //% groups='["New style blocks","Basic","Advanced","Special","Ultrasonic","Line Sensor","5x5 Matrix","BitFace","OLED 128x64","Old style blocks"]'
 namespace theta
 {
-    let fireBand: fireled.Band;
-    let _updateMode = RXMode.Auto;
-    let btDisabled = true;
-    let matrix5: fireled.Band;
-    let bitface: fireled.Band;
-    let mouthSmile: number[] = [0,1,2,3,4,5];
-    let mouthGrin: number[] = [0,1,2,3,4,5,10,11,12,13];
-    let mouthSad: number[] = [0,5,6,7,8,9];
-    let mouthFrown: number[] = [0,5,6,7,8,9,10,11,12,13];
-    let mouthStraight: number[] = [0,5,10,11,12,13];
-    let mouthOooh: number[] = [1,2,3,4,6,7,8,9,10,13];
-    let mouthEeeh: number[] = [0,1,2,3,4,5,6,7,8,9];
-    let palette: number[] = [0xFF0000, 0x659900, 0x18E600, 0x80FF00, 0x00FF00, 0xFF8000, 0xD82600, 0xB24C00, 0x00FFC0, 0x00FF80, 0xFFC000, 0xFF0080, 0xFF00FF, 0xB09EFF, 0x00FFFF, 0xFFFF00, 0x8000FF, 0x0080FF, 0x0000FF, 0xFFFFFF, 0xFF8080, 0x80FF80, 0x40C0FF, 0x999999, 0x000000];
+    let fireBand: fireled.Band
+    let _updateMode = RXMode.Auto
+    let btDisabled = true
+    let matrix5: fireled.Band
+    let bitface: fireled.Band
+    let mouthSmile: number[] = [0,1,2,3,4,5]
+    let mouthGrin: number[] = [0,1,2,3,4,5,10,11,12,13]
+    let mouthSad: number[] = [0,5,6,7,8,9]
+    let mouthFrown: number[] = [0,5,6,7,8,9,10,11,12,13]
+    let mouthStraight: number[] = [0,5,10,11,12,13]
+    let mouthOooh: number[] = [1,2,3,4,6,7,8,9,10,13]
+    let mouthEeeh: number[] = [0,1,2,3,4,5,6,7,8,9]
+    let palette: number[] = [0xFF0000, 0x659900, 0x18E600, 0x80FF00, 0x00FF00, 0xFF8000, 0xD82600, 0xB24C00, 0x00FFC0, 0x00FF80, 0xFFC000, 0xFF0080, 0xFF00FF, 0xB09EFF, 0x00FFFF, 0xFFFF00, 0x8000FF, 0x0080FF, 0x0000FF, 0xFFFFFF, 0xFF8080, 0x80FF80, 0x40C0FF, 0x999999, 0x000000]
     let oled: firescreen.Screen;
-    let leftBias = 0;
-    let rightBias = 0;
+    let leftBias = 
+    let rightBias = 0
     let pidEnable = true
-    let _model = RXModel.Auto;
+    let _model = RXModel.Auto
     let boardRevision = -1
     let firmwareRevision = 0
-    const i2cACK =   0x55;	// i2c acknowledge character for terminating motor commands
+    const i2cACK =   0x55	// i2c acknowledge character for terminating motor commands
     let fireControl = 0		// FireLeds controlled by Microbit by default
 
-    let startFlash = 50;
+    let startFlash = 50
 
     // Motor Pins only used on Theta1, not Theta2
-    const lMotorD0 = DigitalPin.P14;
-    const lMotorD1 = DigitalPin.P13;
-    const lMotorA0 = AnalogPin.P14;
-    const lMotorA1 = AnalogPin.P13;
-    const rMotorD0 = DigitalPin.P16;
-    const rMotorD1 = DigitalPin.P15;
-    const rMotorA0 = AnalogPin.P16;
-    const rMotorA1 = AnalogPin.P15;
+    const lMotorD0 = DigitalPin.P14
+    const lMotorD1 = DigitalPin.P13
+    const lMotorA0 = AnalogPin.P14
+    const lMotorA1 = AnalogPin.P13
+    const rMotorD0 = DigitalPin.P16
+    const rMotorD1 = DigitalPin.P15
+    const rMotorA0 = AnalogPin.P16
+    const rMotorA1 = AnalogPin.P15
 
-    const NUMLEDS = 14;
+    const NUMLEDS = 14
 
 // ----------------------------------------------------------
 // ATMega definitions
@@ -492,79 +492,80 @@ namespace theta
     let lastCommand = cSTOP
     let lastDirection = RXDirection.Forward
     let lastSDirection = RXRobotDirection.Right
+    let lastADirection = RXArcDirection.ForwardLeft
     let lastSpeed = 0
 
 
 // ----------------------------------------------------------
 
-    let setupATM = false;
-    let i2cData2 = pins.createBuffer(2);
-    let i2cData3 = pins.createBuffer(3);
-    let i2cData4 = pins.createBuffer(4);
-    let i2cData5 = pins.createBuffer(5);
-    let i2cData6 = pins.createBuffer(6);
+    let setupATM = false
+    let i2cData2 = pins.createBuffer(2)
+    let i2cData3 = pins.createBuffer(3)
+    let i2cData4 = pins.createBuffer(4)
+    let i2cData5 = pins.createBuffer(5)
+    let i2cData6 = pins.createBuffer(6)
 
     function clamp(value: number, min: number, max: number): number
     {
-        return Math.max(Math.min(max, value), min);
+        return Math.max(Math.min(max, value), min)
     }
 
     // Helper function for Theta2 checks
     function isTheta2(): boolean
     {
-	return getModel() == RXModel.Theta2;
+	return getModel() == RXModel.Theta2
     }
 
     // Commands via I2C on ATMega
     function sendCommand2(command: number, para0: number): void
     {
-	i2cData2[0] = command;
-        i2cData2[1] = para0;
-        pins.i2cWriteBuffer(i2cATMega, i2cData2);
+	i2cData2[0] = command
+        i2cData2[1] = para0
+        pins.i2cWriteBuffer(i2cATMega, i2cData2)
     }
 
     function sendCommand3(command: number, para0: number, para1: number): void
     {
-	i2cData3[0] = command;
-        i2cData3[1] = para0;
-        i2cData3[2] = para1;
-        pins.i2cWriteBuffer(i2cATMega, i2cData3);
+	i2cData3[0] = command
+        i2cData3[1] = para0
+        i2cData3[2] = para1
+        pins.i2cWriteBuffer(i2cATMega, i2cData3)
     }
 
     function sendCommand4(command: number, para0: number, para1: number, para2: number): void
     {
-	i2cData4[0] = command;
-        i2cData4[1] = para0;
-        i2cData4[2] = para1;
-        i2cData4[3] = para2;
-        pins.i2cWriteBuffer(i2cATMega, i2cData4);
+	i2cData4[0] = command
+        i2cData4[1] = para0
+        i2cData4[2] = para1
+        i2cData4[3] = para2
+        pins.i2cWriteBuffer(i2cATMega, i2cData4)
     }
 
     function sendCommand5(command: number, para0: number, para1: number, para2: number, para3: number): void
     {
-	i2cData5[0] = command;
-        i2cData5[1] = para0;
-        i2cData5[2] = para1;
-        i2cData5[3] = para2;
-        i2cData5[4] = para3;
-        pins.i2cWriteBuffer(i2cATMega, i2cData5);
+	i2cData5[0] = command
+        i2cData5[1] = para0
+        i2cData5[2] = para1
+        i2cData5[3] = para2
+        i2cData5[4] = para3
+        pins.i2cWriteBuffer(i2cATMega, i2cData5)
     }
 
     function sendCommand6(command: number, para0: number, para1: number, para2: number, para3: number, para4: number): void
     {
-	i2cData6[0] = command;
-        i2cData6[1] = para0;
-        i2cData6[2] = para1;
-        i2cData6[3] = para2;
-        i2cData6[4] = para3;
-        i2cData6[5] = para4;
-        pins.i2cWriteBuffer(i2cATMega, i2cData6);
+	i2cData6[0] = command
+        i2cData6[1] = para0
+        i2cData6[2] = para1
+        i2cData6[3] = para2
+        i2cData6[4] = para3
+        i2cData6[5] = para4
+        pins.i2cWriteBuffer(i2cATMega, i2cData6)
     }
 
     function readSensor(sensor: number): number
     {
-        pins.i2cWriteNumber(i2cATMega, sensor, NumberFormat.Int8LE, false);
-        return (pins.i2cReadNumber(i2cATMega, NumberFormat.UInt16LE));
+        pins.i2cWriteNumber(i2cATMega, sensor, NumberFormat.Int8LE, false)
+        return (pins.i2cReadNumber(i2cATMega, NumberFormat.UInt16LE))
     }
 
 // Block to enable Bluetooth and disable FireLeds on accessories (doesn't affect built in Fireleds)
@@ -573,14 +574,14 @@ namespace theta
       * @param enable enable or disable Blueetoth
     */
     //% blockId="EnableBluetooth"
-    //% block="%enable|th247 Bluetooth"
+    //% block="%enable|th248 Bluetooth"
     //% blockGap=8
     export function enableBluetooth(enable: RXBluetooth)
     {
         if (enable == RXBluetooth.btEnable)
-            btDisabled = false;
+            btDisabled = false
         else
-            btDisabled = true;
+            btDisabled = true
     }
 
 // Blocks for selecting Theta Model
@@ -612,11 +613,11 @@ namespace theta
         if (_model == RXModel.Auto)
         {
             if (boardRevision == 6)
-                select_model(RXModel.Theta1);
+                select_model(RXModel.Theta1)
 	    else if (boardRevision == 7)
-		select_model(RXModel.Theta2);
+		select_model(RXModel.Theta2)
         }
-        return _model;
+        return _model
     }
 
     /**
@@ -630,7 +631,7 @@ namespace theta
     //% subcategory=Theta_Model
     export function RXModels(model: RXModel): number
     {
-        return model;
+        return model
     }
 
     /**
@@ -654,7 +655,7 @@ namespace theta
 		sendCommand2(PIDENABLE, 1)	// first access to Theta2, so ensure PID loop is enabled
 	    }
 	}
-        return boardRevision;
+        return boardRevision
     }
 
     /**
@@ -690,11 +691,11 @@ namespace theta
 	if(! isTheta2())
 	{
             if (speed < 200)
-                pins.analogSetPeriod(AnalogPin.P0, 60000);
+                pins.analogSetPeriod(AnalogPin.P0, 60000)
             else if (speed < 300)
-                pins.analogSetPeriod(AnalogPin.P0, 40000);
+                pins.analogSetPeriod(AnalogPin.P0, 40000)
             else
-                pins.analogSetPeriod(AnalogPin.P0, 30000);
+                pins.analogSetPeriod(AnalogPin.P0, 30000)
 	}
     }
 
@@ -719,7 +720,7 @@ namespace theta
 	    lastSpeed = speed
 	}
 	else
-            motorMove(RXMotor.Both, direction, speed);
+            motorMove(RXMotor.Both, direction, speed)
     }
 
     /**
@@ -735,9 +736,9 @@ namespace theta
     //% blockGap=8
     export function robotGoms(direction: RXDirection, speed: number, milliseconds: number): void
     {
-        robotGo(direction, speed);
-        basic.pause(milliseconds);
-        robotStop(RXStopMode.Coast);
+        robotGo(direction, speed)
+        basic.pause(milliseconds)
+        robotStop(RXStopMode.Coast)
     }
 
     /**
@@ -764,13 +765,13 @@ namespace theta
 	{
             if (direction == RXRobotDirection.Left)
             {
-                motorMove(RXMotor.Left, RXDirection.Reverse, speed);
-	        motorMove(RXMotor.Right, RXDirection.Forward, speed);
+                motorMove(RXMotor.Left, RXDirection.Reverse, speed)
+	        motorMove(RXMotor.Right, RXDirection.Forward, speed)
 	    }
             else if (direction == RXRobotDirection.Right)
             {
-		motorMove(RXMotor.Left, RXDirection.Forward, speed);
-		motorMove(RXMotor.Right, RXDirection.Reverse, speed);
+		motorMove(RXMotor.Left, RXDirection.Forward, speed)
+		motorMove(RXMotor.Right, RXDirection.Reverse, speed)
             }
 	}
     }
@@ -820,28 +821,6 @@ namespace theta
 	}
     }
 
-/* Removed for v1.1
-    function createCalib(speed: number): void
-    {
-        if (! initCalib)
-        {
-            loadCalibration();
-            initCalib = true;
-        }
-        let calibVal = 0;
-        if (speed < 60)
-            calibVal = calibration[1] - ((60 - speed)/30) * (calibration[1] - calibration[0]);
-        else
-            calibVal = calibration[2] - ((90 - speed)/30) * (calibration[2] - calibration[1]);
-        leftCalib = 0;
-        rightCalib = 0;
-        if (calibVal < 0)
-            leftCalib = Math.abs(calibVal);
-        else
-            rightCalib = calibVal;
-    }
-*/
-
     /**
       * Move individual motors forward or reverse
       * @param motor motor to drive
@@ -855,56 +834,47 @@ namespace theta
     //% blockGap=8
     export function motorMove(motor: RXMotor, direction: RXDirection, speed: number): void
     {
-        let lSpeed = 0;
-        let rSpeed = 0;
-	lastCommand = cDIRECT
-	getModel();
-        speed = clamp(speed, 0, 100);
-	// Removed v1.1: createCalib(speed); // sets bias values for "DriveStraight"
+        let lSpeed = 0
+        let rSpeed = 0
+	getModel()
+        speed = clamp(speed, 0, 100)
+	// Removed v1.1: createCalib(speed) // sets bias values for "DriveStraight"
 	if(isTheta2())
 	{
-	    sendCommand4(DIRECTMODE, speed, direction, motor); // for compatabilty only, no PIDC control
+	    sendCommand4(DIRECTMODE, speed, direction, motor) // for compatabilty only, no PID control
+	    lastCommand = cDIRECT
 	}
 	else
 	{
             speed = speed * 10.23
-            setPWM(speed);
-    	/* Removed v1.1
-            if (leftBias == 0 && rightBias == 0)
-            {
-                lSpeed = Math.round(speed * (100 - leftCalib) / 100);
-                rSpeed = Math.round(speed * (100 - rightCalib) / 100);
-            }
-            else*/
-            {
-                lSpeed = Math.round(speed * (100 - leftBias) / 100);
-                rSpeed = Math.round(speed * (100 - rightBias) / 100);
-            }
+            setPWM(speed)
+            lSpeed = Math.round(speed * (100 - leftBias) / 100)
+            rSpeed = Math.round(speed * (100 - rightBias) / 100)
 
             if ((motor == RXMotor.Left) || (motor == RXMotor.Both))
             {
                 if (direction == RXDirection.Forward)
                 {
-                    pins.analogWritePin(lMotorA0, lSpeed);
-                    pins.analogWritePin(lMotorA1, 0);
+                    pins.analogWritePin(lMotorA0, lSpeed)
+                    pins.analogWritePin(lMotorA1, 0)
                 }
                 else
                 {
-                    pins.analogWritePin(lMotorA0, 0);
-                    pins.analogWritePin(lMotorA1, lSpeed);
+                    pins.analogWritePin(lMotorA0, 0)
+                    pins.analogWritePin(lMotorA1, lSpeed)
                 }
             }
             if ((motor == RXMotor.Right) || (motor == RXMotor.Both))
             {
                 if (direction == RXDirection.Forward)
                 {
-                    pins.analogWritePin(rMotorA0, rSpeed);
-                    pins.analogWritePin(rMotorA1, 0);
+                    pins.analogWritePin(rMotorA0, rSpeed)
+                    pins.analogWritePin(rMotorA1, 0)
                 }
                 else
                 {
-                    pins.analogWritePin(rMotorA0, 0);
-                    pins.analogWritePin(rMotorA1, rSpeed);
+                    pins.analogWritePin(rMotorA0, 0)
+                    pins.analogWritePin(rMotorA1, rSpeed)
                 }
             }
 	}
@@ -927,9 +897,9 @@ namespace theta
     //% blockGap=8
     export function motorMovems(motor: RXMotor, direction: RXDirection, speed: number, duration: number): void
     {
-        motorMove(motor, direction, speed);
-        basic.pause(duration);
-        robotStop(RXStopMode.Coast);
+        motorMove(motor, direction, speed)
+        basic.pause(duration)
+        robotStop(RXStopMode.Coast)
     }
 
 
@@ -948,13 +918,13 @@ namespace theta
         bias = clamp(bias, 0, 80);
         if (direction == RXRobotDirection.Left)
         {
-            leftBias = bias;
-            rightBias = 0;
+            leftBias = bias
+            rightBias = 0
         }
         else
         {
-            leftBias = 0;
-            rightBias = bias;
+            leftBias = 0
+            rightBias = bias
         }
     }
 
@@ -966,7 +936,7 @@ namespace theta
 	basic.pause(10);
 	while(pins.i2cReadNumber(i2cATMega, NumberFormat.UInt16LE) != i2cACK)	// read register is always ACKNAK when waiting is required
 	//while (readSensor(ACKNAK) != i2cACK)
-	    basic.pause(10);
+	    basic.pause(10)
     }
 
     /**
@@ -982,12 +952,12 @@ namespace theta
     //% group=Motors
     export function gocm(direction: RXDirection, speed: number, distance: number): void
     {
-	lastCommand = cGOCM
 	if(isTheta2())
 	{
-	    sendCommand4(DRIVEDIST, (direction == RXDirection.Reverse) ? -speed : speed, distance & 0xff, distance >> 8);
+	    sendCommand4(DRIVEDIST, (direction == RXDirection.Reverse) ? -speed : speed, distance & 0xff, distance >> 8)
+	    lastCommand = cGOCM
 	    // wait for function complete
-	    waitForAck();
+	    waitForAck()
 	}
     }
 
@@ -1004,12 +974,12 @@ namespace theta
     //% group=Motors
     export function spinDeg(direction: RXRobotDirection, speed: number, angle: number): void
     {
-	lastCommand = cSPINDEG
 	if(isTheta2())
 	{
-	    sendCommand4(SPINANGLE, (direction == RXRobotDirection.Right) ? -speed : speed, angle & 0xff, angle >> 8);
+	    sendCommand4(SPINANGLE, (direction == RXRobotDirection.Right) ? -speed : speed, angle & 0xff, angle >> 8)
+	    lastCommand = cSPINDEG
 	    // wait for function complete
-	    waitForAck();
+	    waitForAck()
 	}
     }
 
@@ -1026,19 +996,25 @@ namespace theta
     //% group=Motors
     export function arc(direction: RXArcDirection, speed: number, radius: number): void
     {
-	lastCommand = cARC
 	if(isTheta2())
 	{
-	    let aSpeed = ((direction == RXArcDirection.ReverseLeft) || (direction == RXArcDirection.ReverseRight)) ? -speed : speed
-	    if((direction == RXArcDirection.ForwardRight) || (direction == RXArcDirection.ReverseRight))
-	    	sendCommand4(ARC, aSpeed, radius & 0xff, radius >> 8)
-	    else  // now fudge the unterminated Arc command with a very long terminated arc
+	    if(lastCommand!=cARC || lastADirection!=direction || lastSpeed!=speed || lastRadius!=radius)
 	    {
-		let aAngle = 32767
-		sendCommand6(ARCANGLE, aSpeed, radius & 0xff, radius >> 8, aAngle & 0xff, aAngle >>8)
-		// NB. do not wait for Ack
+		let aSpeed = ((direction == RXArcDirection.ReverseLeft) || (direction == RXArcDirection.ReverseRight)) ? -speed : speed
+		if((direction == RXArcDirection.ForwardRight) || (direction == RXArcDirection.ReverseRight))
+	    	    sendCommand4(ARC, aSpeed, radius & 0xff, radius >> 8)
+		else  // now fudge the unterminated Arc command with a very long terminated arc
+		{
+		    let aAngle = 32767
+		    sendCommand6(ARCANGLE, aSpeed, radius & 0xff, radius >> 8, aAngle & 0xff, aAngle >>8)
+		    // NB. do not wait for Ack
+		}
 	    }
 	}
+	lastADirection = direction
+	lastSpeed = speed
+	lastRadius = radius
+        lastCommand = cARC
     }
 
     /**
@@ -1056,12 +1032,12 @@ namespace theta
     //% group=Motors
     export function arcdeg(direction: RXArcDirection, speed: number, radius: number, angle: number): void
     {
-	lastCommand = cARCDEG
 	if(isTheta2())
 	{
 	    let aSpeed = ((direction == RXArcDirection.ReverseLeft) || (direction == RXArcDirection.ReverseRight)) ? -speed : speed
 	    let aAngle = ((direction == RXArcDirection.ForwardRight) || (direction == RXArcDirection.ReverseRight)) ? -angle : angle
 	    sendCommand6(ARCANGLE, aSpeed, radius & 0xff, radius >> 8, aAngle & 0xff, aAngle >>8)
+	    lastCommand = cARCDEG
 	    // wait for function complete
 	    waitForAck()
 	}
@@ -1080,7 +1056,6 @@ namespace theta
     //% group=Motors
     export function steer(direction: number, speed: number): void
     {
-	lastCommand = cSTEER
 	if(isTheta2())
 	{
 	    direction = clamp(direction, -100, 100)
@@ -1089,6 +1064,7 @@ namespace theta
 	    let speedR = (direction < 0) ? speed : ((100 - direction) * speed) / 100
 	    sendCommand4(DIRECTMODE, speedL, 0, 0)
 	    sendCommand4(DIRECTMODE, speedR, 0, 1)
+	    lastCommand = cSTEER
 	}
     }
 
@@ -1200,9 +1176,9 @@ namespace theta
     export function readLineDigital(sensor: RXLineSensor): boolean
     {
 	if(isTheta2())
-	    return (readSensor(sensor + DLINEL)==0);	// Digital Line sensors contiguous: 11, 12, 13
+	    return (readSensor(sensor + DLINEL)==0)	// Digital Line sensors contiguous: 11, 12, 13
 	else
-	    return false;
+	    return false
     }
 
     /**
@@ -1248,7 +1224,7 @@ namespace theta
     export function setThreshold(threshold: number, hysteresis: number): void
     {
 	if(isTheta2())
-	    sendCommand5(SETTHRESH, threshold & 0xff, threshold >> 8, hysteresis & 0xff, hysteresis >> 8);
+	    sendCommand5(SETTHRESH, threshold & 0xff, threshold >> 8, hysteresis & 0xff, hysteresis >> 8)
     }
 
 // Infrared Receiver Blocks
@@ -1391,7 +1367,7 @@ namespace theta
     //% blockGap=8
     export function ledRainbow(dir: boolean): void
     {
-	sendCommand2(RAINBOW, dir?1:0);
+	sendCommand2(RAINBOW, dir?1:0)
     }
 
     /**
@@ -1406,7 +1382,7 @@ namespace theta
     //% blockGap=8
     export function ledShift(dir: boolean): void
     {
-	sendCommand2(SHIFTLEDS, dir?1:0);
+	sendCommand2(SHIFTLEDS, dir?1:0)
     }
 
     /**
@@ -1421,7 +1397,7 @@ namespace theta
     //% blockGap=8
     export function ledRotate(dir: boolean): void
     {
-	sendCommand2(ROTATELEDS, dir?1:0);
+	sendCommand2(ROTATELEDS, dir?1:0)
     }
 
     // Advanced blocks
@@ -1438,7 +1414,7 @@ namespace theta
     //% blockGap=8
     export function ledBrightness(brightness: number): void
     {
-	sendCommand2(FIREBRT, brightness);
+	sendCommand2(FIREBRT, brightness)
     }
 
     /**
@@ -1453,7 +1429,7 @@ namespace theta
     export function setUpdateMode(updateMode: RXMode): void
     {
         _updateMode = updateMode;
-	sendCommand2(UPDATEMODE, updateMode);
+	sendCommand2(UPDATEMODE, updateMode)
     }
 
     /**
@@ -1466,7 +1442,7 @@ namespace theta
     //% blockGap=8
     export function ledShow(): void
     {
-	sendCommand2(FIREUPDT, 0);
+	sendCommand2(FIREUPDT, 0)
     }
 
     /**
@@ -1504,7 +1480,7 @@ namespace theta
     //% blockGap=8
     export function convertRGB(r: number, g: number, b: number): number
     {
-        return ((r & 0xFF) << 16) | ((g & 0xFF) << 8) | (b & 0xFF);
+        return ((r & 0xFF) << 16) | ((g & 0xFF) << 8) | (b & 0xFF)
     }
 
     /**
@@ -1518,7 +1494,7 @@ namespace theta
     //% blockGap=8
     export function getPaletteEntry(index: number): number
     {
-        return palette[clamp(index, 0, 24)];
+        return palette[clamp(index, 0, 24)]
     }
 
 // Built-in Sensors - Inputs and Outputs
@@ -1537,17 +1513,17 @@ namespace theta
     //% group="IO Pins"
     export function setIOMode(pin: number, mode: RXIOMode): void
     {
-        let cmd = 0;
+        let cmd = 0
 	if(! isTheta2())
 	{
             switch(pin)
             {
-                case 0: cmd = IO_0_CFG; break;
-                case 1: cmd = IO_1_CFG; break;
-                case 2: cmd = IO_2_CFG; break;
-                case 3: cmd = IO_3_CFG; break;
+                case 0: cmd = IO_0_CFG; break
+                case 1: cmd = IO_1_CFG; break
+                case 2: cmd = IO_2_CFG; break
+                case 3: cmd = IO_3_CFG; break
             }
-	    sendCommand2(cmd, mode);
+	    sendCommand2(cmd, mode)
 	}
     }
 
@@ -1563,18 +1539,18 @@ namespace theta
     //% group="IO Pins"
     export function readIOPin(pin: number): number
     {
-        let cmd = 0;
+        let cmd = 0
         switch(pin)
         {
-            case 0: cmd = INP0; break;
-            case 1: cmd = INP1; break;
-            case 2: cmd = INP2; break;
-            case 3: cmd = INP3; break;
+            case 0: cmd = INP0; break
+            case 1: cmd = INP1; break
+            case 2: cmd = INP2; break
+            case 3: cmd = INP3; break
         }
         if((cmd != 0) && (! isTheta2()))
-	    return readSensor(cmd);
+	    return readSensor(cmd)
         else
-            return 0;
+            return 0
     }
 
     /**
@@ -1590,16 +1566,16 @@ namespace theta
     //% group="IO Pins"
     export function writeIOPin(value: number, pin: number): void
     {
-        let cmd = 0;
+        let cmd = 0
         switch(pin)
         {
-            case 0: cmd = IO_0_DATA; break;
-            case 1: cmd = IO_1_DATA; break;
-            case 2: cmd = IO_2_DATA; break;
-            case 3: cmd = IO_3_DATA; break;
+            case 0: cmd = IO_0_DATA; break
+            case 1: cmd = IO_1_DATA; break
+            case 2: cmd = IO_2_DATA; break
+            case 3: cmd = IO_3_DATA; break
         }
         if((cmd != 0) && (! isTheta2()))
-	    sendCommand2(cmd, value);
+	    sendCommand2(cmd, value)
     }
 
 // General I/O
@@ -1637,28 +1613,28 @@ namespace theta
     export function readSonar(unit: RXPingUnit): number
     {
         // send pulse
-        let trig = DigitalPin.P12;
-        let echo = DigitalPin.P12;
-        let maxDistance = 2000*59; // 2m in microseconds
-        let d=10;
-        pins.setPull(trig, PinPullMode.PullNone);
+        let trig = DigitalPin.P12
+        let echo = DigitalPin.P12
+        let maxDistance = 2000*59 // 2m in microseconds
+        let d = 10
+        pins.setPull(trig, PinPullMode.PullNone)
         for (let x=0; x<10; x++)
         {
-            pins.digitalWritePin(trig, 0);
-            control.waitMicros(2);
-            pins.digitalWritePin(trig, 1);
-            control.waitMicros(10);
-            pins.digitalWritePin(trig, 0);
+            pins.digitalWritePin(trig, 0)
+            control.waitMicros(2)
+            pins.digitalWritePin(trig, 1)
+            control.waitMicros(10)
+            pins.digitalWritePin(trig, 0)
             // read pulse
-            d = pins.pulseIn(echo, PulseValue.High, maxDistance);
+            d = pins.pulseIn(echo, PulseValue.High, maxDistance)
             if (d>0)
-                break;
+                break
         }
         switch (unit)
         {
-            case RXPingUnit.Centimeters: return Math.round(d / 59);
-            case RXPingUnit.Inches: return Math.round(d / 149);
-            default: return d;
+            case RXPingUnit.Centimeters: return Math.round(d / 59)
+            case RXPingUnit.Inches: return Math.round(d / 149)
+            default: return d
         }
     }
 
@@ -1688,7 +1664,7 @@ namespace theta
     //% group=Sensors
     export function readLight(sensor: RXLightSensor): number
     {
-        return readSensor(sensor + LIGHTL);
+        return readSensor(sensor + LIGHTL)
     }
 
     /**
@@ -1700,7 +1676,7 @@ namespace theta
     //% group=Sensors
     export function readDial(): number
     {
-        return readSensor(DIAL);
+        return readSensor(DIAL)
     }
 
     /**
@@ -1730,7 +1706,7 @@ namespace theta
     //% group=EEROM
     export function readEEROM(location: number): number
     {
-        return rdEEROM(location + reservedBytes); // first bytes reserved for system use
+        return rdEEROM(location + reservedBytes) // first bytes reserved for system use
     }
 
     /**
@@ -1762,7 +1738,7 @@ namespace theta
     //% group=EEROM
     export function writeEEROM(value: number, location: number): void
     {
-        wrEEROM(value, location + reservedBytes); // first bytes reserved for system use
+        wrEEROM(value, location + reservedBytes) // first bytes reserved for system use
     }
 
     /**
@@ -1775,11 +1751,9 @@ namespace theta
     //% deprecated=true
     export function wrEEROM(value: number, location: number): void
     {
-        let cmd = location + startFlash;
+        let cmd = location + startFlash
         if (cmd < 255)
-        {
-	    sendCommand2(cmd, value);
-        }
+	    sendCommand2(cmd, value)
     }
 
 
@@ -1793,17 +1767,17 @@ namespace theta
     {
         if (!matrix5)
         {
-            matrix5 = fireled.newBand(DigitalPin.P12, 25);
-            matrix5.setBrightness(40);
+            matrix5 = fireled.newBand(DigitalPin.P12, 25)
+            matrix5.setBrightness(40)
         }
-        return matrix5;
+        return matrix5
     }
 
     // update Matrix if _updateMode set to Auto
     function matUpdate(): void
     {
         if (_updateMode == RXMode.Auto)
-            matShow();
+            matShow()
     }
 
     /**
@@ -1816,8 +1790,8 @@ namespace theta
     //% blockGap=8
     export function matClear(): void
     {
-        mat5().clearBand();
-        matUpdate();
+        mat5().clearBand()
+        matUpdate()
     }
 
     /**
@@ -1831,13 +1805,13 @@ namespace theta
     //% blockGap=8
     export function setMatrix(rgb: number)
     {
-        rawSetMatrix(rgb);
-        matUpdate();
+        rawSetMatrix(rgb)
+        matUpdate()
     }
 
     function rawSetMatrix(rgb: number)
     {
-        mat5().setBand(rgb);
+        mat5().setBand(rgb)
     }
 
     /**
@@ -1853,10 +1827,10 @@ namespace theta
     export function SetMatPixel(ledId: number, rgb: number): void
     {
         // need to map to match Microbit: top left is 0, bottom right is 24
-        let x = 4 - ledId % 5;
-        let y = 4 - Math.idiv(ledId, 5);
-        mat5().setPixel(x + y*5, rgb);
-        matUpdate();
+        let x = 4 - ledId % 5
+        let y = 4 - Math.idiv(ledId, 5)
+        mat5().setPixel(x + y*5, rgb)
+        matUpdate()
     }
 
     /**
@@ -1872,13 +1846,13 @@ namespace theta
     //% blockGap=8
     export function setArrayPixel(x: number, y: number, rgb: number): void
     {
-        rawArrayPixel(x, y, rgb);
-        matUpdate();
+        rawArrayPixel(x, y, rgb)
+        matUpdate()
     }
 
     function rawArrayPixel(x: number, y: number, rgb: number): void
     {
-        mat5().setPixel((4-x) + (4-y)*5, rgb);
+        mat5().setPixel((4-x) + (4-y)*5, rgb)
     }
 
     /**
@@ -1892,8 +1866,8 @@ namespace theta
     export function matRainbow(): void
     {
         // TODO Fix so it uses top left to bottom right
-        mat5().setRainbow();
-        matUpdate();
+        mat5().setRainbow()
+        matUpdate()
     }
 
     /**
@@ -1920,7 +1894,7 @@ namespace theta
             for (let y=y1; y <= y2; y++)
             {
                 if (inRange(x, y) && (x==x1 || x==x2 || y==y1 || y==y2 || fill))
-                    rawArrayPixel(x, y, rgb);
+                    rawArrayPixel(x, y, rgb)
             }
         }
         matUpdate();
@@ -1929,7 +1903,7 @@ namespace theta
     /* check x, y is within range */
     function inRange(x: number, y: number): boolean
     {
-        return (x>=0 && x<5 && y>=0 && y<5);
+        return (x>=0 && x<5 && y>=0 && y<5)
     }
 
     /**
@@ -1947,50 +1921,50 @@ namespace theta
     {
         rawSetMatrix(rgb);
         // Clear corners to make a circle-ish
-        rawArrayPixel(0, 0, 0);
-        rawArrayPixel(0, 4, 0);
-        rawArrayPixel(4, 0, 0);
-        rawArrayPixel(4, 4, 0);
+        rawArrayPixel(0, 0, 0)
+        rawArrayPixel(0, 4, 0)
+        rawArrayPixel(4, 0, 0)
+        rawArrayPixel(4, 4, 0)
         // draw pupil
         switch(pos)
         {
             case eyePos.Forward:
-                (size==eyeSize.Small) ? rawArrayPixel(2,2,0) : pupil5(2,2); break;
+                (size==eyeSize.Small) ? rawArrayPixel(2,2,0) : pupil5(2,2); break
             case eyePos.Down:
-                (size==eyeSize.Small) ? rawArrayPixel(2,3,0) : pupil5(2,3); break;
+                (size==eyeSize.Small) ? rawArrayPixel(2,3,0) : pupil5(2,3); break
             case eyePos.Up:
-                (size==eyeSize.Small) ? rawArrayPixel(2,1,0) : pupil5(2,1); break;
+                (size==eyeSize.Small) ? rawArrayPixel(2,1,0) : pupil5(2,1); break
             case eyePos.Left:
-                (size==eyeSize.Small) ? rawArrayPixel(3,2,0) : pupil5(3,2); break;
+                (size==eyeSize.Small) ? rawArrayPixel(3,2,0) : pupil5(3,2); break
             case eyePos.Right:
-                (size==eyeSize.Small) ? rawArrayPixel(1,2,0) : pupil5(1,2); break;
+                (size==eyeSize.Small) ? rawArrayPixel(1,2,0) : pupil5(1,2); break
             case eyePos.DownLeft:
-                (size==eyeSize.Small) ? rawArrayPixel(3,3,0) : pupil4(2,2); break;
+                (size==eyeSize.Small) ? rawArrayPixel(3,3,0) : pupil4(2,2); break
             case eyePos.DownRight:
-                (size==eyeSize.Small) ? rawArrayPixel(1,3,0) : pupil4(1,2); break;
+                (size==eyeSize.Small) ? rawArrayPixel(1,3,0) : pupil4(1,2); break
             case eyePos.UpLeft:
-                (size==eyeSize.Small) ? rawArrayPixel(3,1,0) : pupil4(2,1); break;
+                (size==eyeSize.Small) ? rawArrayPixel(3,1,0) : pupil4(2,1); break
             case eyePos.UpRight:
-                (size==eyeSize.Small) ? rawArrayPixel(1,1,0) : pupil4(1,1); break;
+                (size==eyeSize.Small) ? rawArrayPixel(1,1,0) : pupil4(1,1); break
         }
         matUpdate();
     }
  
      function pupil5(x: number, y: number)
      {
-        rawArrayPixel(x, y, 0);
-        rawArrayPixel(x+1, y, 0);
-        rawArrayPixel(x-1, y, 0);
-        rawArrayPixel(x, y+1, 0);
-        rawArrayPixel(x, y-1, 0);
+        rawArrayPixel(x, y, 0)
+        rawArrayPixel(x+1, y, 0)
+        rawArrayPixel(x-1, y, 0)
+        rawArrayPixel(x, y+1, 0)
+        rawArrayPixel(x, y-1, 0)
     }
 
      function pupil4(x: number, y: number)
      {
-         rawArrayPixel(x, y, 0);
-         rawArrayPixel(x+1, y, 0);
-         rawArrayPixel(x, y+1, 0);
-         rawArrayPixel(x+1, y+1, 0);
+         rawArrayPixel(x, y, 0)
+         rawArrayPixel(x+1, y, 0)
+         rawArrayPixel(x, y+1, 0)
+         rawArrayPixel(x+1, y+1, 0)
      }
 
     /**
@@ -2011,7 +1985,7 @@ namespace theta
             for (let j=0; j<5; j++)
             {
                 if (myImage.pixel(i, j))
-                    rawArrayPixel(i, j, rgb);
+                    rawArrayPixel(i, j, rgb)
             }
         }
         matUpdate();
@@ -2029,7 +2003,7 @@ namespace theta
     export function matShow(): void
     {
         if (btDisabled)
-            mat5().updateBand();
+            mat5().updateBand()
     }
 
     /**
@@ -2044,8 +2018,8 @@ namespace theta
     //% blockGap=8
     export function matBrightness(brightness: number): void
     {
-        mat5().setBrightness(brightness);
-        matUpdate();
+        mat5().setBrightness(brightness)
+        matUpdate()
     }
 
 // BitFace Addon
@@ -2054,24 +2028,24 @@ namespace theta
     {
         if (!bitface)
         {
-            bitface = fireled.newBand(DigitalPin.P12, 17);
-            bitface.setBrightness(40);
+            bitface = fireled.newBand(DigitalPin.P12, 17)
+            bitface.setBrightness(40)
         }
-        return bitface;
+        return bitface
     }
 
     function bitfUpdate(): void
     {
         if (btDisabled)
-            bitf().updateBand();
+            bitf().updateBand()
     }
 
     function drawMouth(myList: number[], rgb: number)
     {
         for (let i=0; i<14; i++)
-            bitf().setPixel(i, 0);
+            bitf().setPixel(i, 0)
         for (let i=0; i<myList.length; i++)
-            bitf().setPixel(myList[i], rgb);
+            bitf().setPixel(myList[i], rgb)
     }
 
     /**
@@ -2086,8 +2060,8 @@ namespace theta
     //% blockGap=8
     export function setBitface(rgb: number)
     {
-        bitf().setBand(rgb);
-        bitfUpdate();
+        bitf().setBand(rgb)
+        bitfUpdate()
     }
 
     /**
@@ -2104,10 +2078,10 @@ namespace theta
     export function setBitEye(eye: bfEyes, rgb: number)
     {
         if (eye == bfEyes.Left || eye == bfEyes.Both)
-            bitf().setPixel(15, rgb);
+            bitf().setPixel(15, rgb)
         if (eye == bfEyes.Right || eye == bfEyes.Both)
-            bitf().setPixel(16, rgb);
-        bitfUpdate();
+            bitf().setPixel(16, rgb)
+        bitfUpdate()
     }
 
     /**
@@ -2122,8 +2096,8 @@ namespace theta
     //% blockGap=8
     export function setBitNose(rgb: number)
     {
-        bitf().setPixel(14, rgb);
-        bitfUpdate();
+        bitf().setPixel(14, rgb)
+        bitfUpdate()
     }
 
     /**
@@ -2141,15 +2115,15 @@ namespace theta
     {
         switch (mouth)
         {
-            case bfMouth.Smile: drawMouth(mouthSmile, rgb); break;
-            case bfMouth.Grin: drawMouth(mouthGrin, rgb); break;
-            case bfMouth.Sad: drawMouth(mouthSad, rgb); break;
-            case bfMouth.Frown: drawMouth(mouthFrown, rgb); break;
-            case bfMouth.Straight: drawMouth(mouthStraight, rgb); break;
-            case bfMouth.Oooh: drawMouth(mouthOooh, rgb); break;
-            case bfMouth.Eeeh: drawMouth(mouthEeeh, rgb); break;
+            case bfMouth.Smile: drawMouth(mouthSmile, rgb); break
+            case bfMouth.Grin: drawMouth(mouthGrin, rgb); break
+            case bfMouth.Sad: drawMouth(mouthSad, rgb); break
+            case bfMouth.Frown: drawMouth(mouthFrown, rgb); break
+            case bfMouth.Straight: drawMouth(mouthStraight, rgb); break
+            case bfMouth.Oooh: drawMouth(mouthOooh, rgb); break
+            case bfMouth.Eeeh: drawMouth(mouthEeeh, rgb); break
         }
-        bitfUpdate();
+        bitfUpdate()
     }
 
     /**
@@ -2164,8 +2138,8 @@ namespace theta
     //% blockGap=8
     export function bitBrightness(brightness: number): void
     {
-        bitf().setBrightness(brightness);
-        bitfUpdate();
+        bitf().setBrightness(brightness)
+        bitfUpdate()
     }
 
 // OLED 128x64 Addon
@@ -2175,9 +2149,9 @@ namespace theta
     {
         if (!oled)
         {
-            oled = firescreen.newScreen(0x3c);
+            oled = firescreen.newScreen(0x3c)
         }
-        return oled;
+        return oled
     }
 
     /**
@@ -2197,7 +2171,7 @@ namespace theta
     //% blockGap=8
     export function oledText(text: string, x: number, y: number, inv: boolean)
     {
-        oScreen().doText(text, x, y, inv);
+        oScreen().doText(text, x, y, inv)
     }
 
     /**
@@ -2217,7 +2191,7 @@ namespace theta
     //% blockGap=8
     export function oledNumber(num: number, x: number, y: number, inv: boolean)
     {
-        oScreen().doNumber(num, x, y, inv);
+        oScreen().doNumber(num, x, y, inv)
     }
 
     /**
@@ -2231,7 +2205,7 @@ namespace theta
     //% blockGap=8
     export function oledUpdate()
     {
-        oScreen().updateScreen();
+        oScreen().updateScreen()
     }
 
     /**
@@ -2247,7 +2221,7 @@ namespace theta
     //% blockGap=8
     export function oledSet(set: boolean)
     {
-        oScreen().setScreen(set);
+        oScreen().setScreen(set)
     }
 
     /**
@@ -2262,7 +2236,7 @@ namespace theta
     //% blockGap=8
     export function oledInvert(inv: boolean)
     {
-        oScreen().invertOled(inv);
+        oScreen().invertOled(inv)
     }
 
     /**
@@ -2277,7 +2251,7 @@ namespace theta
     //% blockGap=8
     export function oledZOOM(zoom: boolean)
     {
-        oScreen().zoomOled(zoom);
+        oScreen().zoomOled(zoom)
     }
 
     /**
@@ -2298,7 +2272,7 @@ namespace theta
     //% blockGap=8
     export function oledPlotPixel(x: number, y: number, doSet: boolean, update: boolean)
     {
-        oScreen().plotPixel(x, y, doSet, update);
+        oScreen().plotPixel(x, y, doSet, update)
     }
 
     /**
@@ -2321,7 +2295,7 @@ namespace theta
     //% blockGap=8
     export function oledLine(x1: number, y1: number, x2: number, y2: number, doSet: boolean, update: boolean)
     {
-        oScreen().oledLine(x1, y1, x2, y2, doSet, update);
+        oScreen().oledLine(x1, y1, x2, y2, doSet, update)
     }
 
     /**
@@ -2344,7 +2318,7 @@ namespace theta
     //% blockGap=8
     export function oledRectangle(x1: number, y1: number, x2: number, y2: number, doSet: boolean, update: boolean)
     {
-        oScreen().oledRect(x1, y1, x2, y2, doSet, update);
+        oScreen().oledRect(x1, y1, x2, y2, doSet, update)
     }
 
     /**
@@ -2366,7 +2340,7 @@ namespace theta
     //% blockGap=8
     export function oledCircle (x: number, y: number, r: number, doSet: boolean, update: boolean)
     {
-        oScreen().oledCircle(x, y, r, doSet, update);
+        oScreen().oledCircle(x, y, r, doSet, update)
     }
 
 }
