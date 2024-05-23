@@ -565,6 +565,7 @@ namespace theta
 
     function readSensor(sensor: number): number
     {
+	getModel()
         pins.i2cWriteNumber(i2cATMega, sensor, NumberFormat.Int8LE, false)
         return (pins.i2cReadNumber(i2cATMega, NumberFormat.UInt16LE))
     }
@@ -575,7 +576,7 @@ namespace theta
       * @param enable enable or disable Blueetoth
     */
     //% blockId="EnableBluetooth"
-    //% block="%enable|th252 Bluetooth"
+    //% block="%enable|th254 Bluetooth"
     //% blockGap=8
     export function enableBluetooth(enable: RXBluetooth)
     {
@@ -610,7 +611,7 @@ namespace theta
     //% subcategory=Theta_Model
     export function getModel(): RXModel
     {
-        getBoardRevision();
+        getBoardRevision()
         if (_model == RXModel.Auto)
         {
             if (boardRevision == 6)
@@ -992,6 +993,7 @@ namespace theta
       */
     //% blockId="RXArc" block="move in an arc%direction|at speed%speed|\\% radius%radius|cm"
     //% speed.min=0 speed.max=100
+    //% radius.min=7
     //% weight=80
     //% subcategory=Theta2
     //% group=Motors
@@ -999,6 +1001,7 @@ namespace theta
     {
 	if(isTheta2())
 	{
+	    radius = Math.max(radius, 7)
 	    if(lastCommand!=cARC || lastADirection!=direction || lastSpeed!=speed || lastRadius!=radius)
 	    {
 		let aSpeed = ((direction == RXArcDirection.ReverseLeft) || (direction == RXArcDirection.ReverseRight)) ? -speed : speed
@@ -1011,11 +1014,11 @@ namespace theta
 		    // NB. do not wait for Ack
 		}
 	    }
+	    lastADirection = direction
+	    lastSpeed = speed
+	    lastRadius = radius
+            lastCommand = cARC
 	}
-	lastADirection = direction
-	lastSpeed = speed
-	lastRadius = radius
-        lastCommand = cARC
     }
 
     /**
@@ -1027,6 +1030,7 @@ namespace theta
       */
     //% blockId="RXArcDeg" block="move in an arc%direction|at speed%speed|\\% radius%radius|cm for%angle|degrees"
     //% speed.min=0 speed.max=100
+    //% radius.min=7
     //% weight=70
     //% inlineInputMode=inline
     //% subcategory=Theta2
@@ -1035,6 +1039,7 @@ namespace theta
     {
 	if(isTheta2())
 	{
+	    radius = Math.max(radius, 7)
 	    let aSpeed = ((direction == RXArcDirection.ReverseLeft) || (direction == RXArcDirection.ReverseRight)) ? -speed : speed
 	    let aAngle = ((direction == RXArcDirection.ForwardRight) || (direction == RXArcDirection.ReverseRight)) ? -angle : angle
 	    sendCommand6(ARCANGLE, aSpeed, radius & 0xff, radius >> 8, aAngle & 0xff, aAngle >>8)
