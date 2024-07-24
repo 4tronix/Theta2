@@ -593,7 +593,7 @@ namespace theta
       * @param enable enable or disable Blueetoth
     */
     //% blockId="EnableBluetooth"
-    //% block="%enable|th256 Bluetooth"
+    //% block="%enable|th257 Bluetooth"
     //% blockGap=8
     export function enableBluetooth(enable: RXBluetooth)
     {
@@ -677,9 +677,9 @@ namespace theta
 
     function getCode()	// this always gets the codes
     {
-	    let revisions = pins.i2cReadNumber(i2cATMega, NumberFormat.UInt16LE, false)
-	    boardRevision = (revisions >> 8) & 0xff
-	    firmwareRevision = revisions & 0xff
+	let revisions = pins.i2cReadNumber(i2cATMega, NumberFormat.UInt16LE, false)
+	boardRevision = (revisions >> 8) & 0xff
+	firmwareRevision = revisions & 0xff
     }
 
 
