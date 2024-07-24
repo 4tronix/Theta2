@@ -394,7 +394,7 @@ namespace theta
     let pidEnable = true
     let pidActive = false
     let _model = RXModel.Auto
-    let boardRevision = -1
+    let boardRevision = 0
     let firmwareRevision = 0
     const i2cACK =   0x55	// i2c acknowledge character for terminating motor commands
     let fireControl = 0		// FireLeds controlled by Microbit by default
@@ -593,7 +593,7 @@ namespace theta
       * @param enable enable or disable Blueetoth
     */
     //% blockId="EnableBluetooth"
-    //% block="%enable|th259 Bluetooth"
+    //% block="%enable|th260 Bluetooth"
     //% blockGap=8
     export function enableBluetooth(enable: RXBluetooth)
     {
@@ -663,10 +663,10 @@ namespace theta
     export function getBoardRevision(): number
     {
 	// 6 = Theta1, 7 = Theta2
-        if (boardRevision == -1)	// first time requesting
+        if (boardRevision <= 0)	// first time requesting
 	{
 	    getCode()
-	    if(boardRevision == 7) // Theta2
+	    if(boardRevision == 7)	// Theta2
 	    {
 		pidEnable = true
 		sendCommand2(PIDENABLE, 1)	// first access to Theta2, so ensure PID loop is enabled
@@ -675,7 +675,7 @@ namespace theta
         return boardRevision
     }
 
-    function getCode(): number	// this always gets the codes
+    function getCode(): void	// this always gets the codes
     {
 	let revisions = pins.i2cReadNumber(i2cATMega, NumberFormat.UInt16LE, false)
 	boardRevision = (revisions >> 8) & 0xff
