@@ -1,6 +1,6 @@
 ﻿// Makecode for Theta and Theta2 robots
 // Board Revision is 6 for Theta, 7 for Theta2
-// Firmware Revision is 5 for Theta2.01 and 6 for Theta2.02
+// Firmware Revision is 5 for Theta2.01, 6 for Theta2.02, 10 for Theta2 release
 
 /**
   * Eyeball directions
@@ -201,6 +201,8 @@ enum RXSensorUnit
 {
     //% block="mmm"
     Millimeters,
+    //% block="cm"
+    Centimeters,
     //% block="inches"
     Inches,
     //% block="pulses"
@@ -214,18 +216,8 @@ enum RXSensorUnit
   */
 enum RXMode
 {
-    //% manual=0
     Manual,
-    //% auto=1
     Auto
-}
-
-enum RXFireControl
-{
-    //% block="Microbit"
-    RXMicrobit,
-    //% block="ATMega"
-    RXATMega
 }
 
 enum RXModel
@@ -364,6 +356,16 @@ enum RXirNoAny
     Ok=56
 }
 
+/**
+  * Volume settings for Buzzer
+  */
+enum RXBuzzVolume
+{
+  Off=0,
+  Quiet=130,
+  Medium=160,
+  Loud=200
+}
 
 /**
  * Custom blocks
@@ -451,6 +453,12 @@ namespace theta
     const RESETWHEEL = 33  // Left, Right, Both
     const SETTRIMS   = 34  // trimDistance and trimAngle. Both -100 to +100
 
+    const SETPIDCON   = 35  // set the PID constants (used for debugging)
+    const SUMERRORS   = 36  // disable/enable carrying PID errors to next command
+    const CLRERRORS   = 37  // Clear the PID tracking error
+    const STOPBRAKE   = 38  // Set Stop and braking thresholds in mm and speed in pulses
+    const STARTPWM    = 39  // Set the starting PWM minimum and maximum values
+
 // THETA2 IR constants
     const irPin = DigitalPin.P16
     const irEvent = 1995
@@ -477,6 +485,8 @@ namespace theta
     const LPULSEH     = 22  // left pulse count high word
     const RPULSEL     = 23
     const RPULSEH     = 24
+    const LASTERRL = 25
+    const LASTERRR = 26
 
 // Motor Command Tracking
     const cGO      = 1
@@ -570,13 +580,19 @@ namespace theta
         return (pins.i2cReadNumber(i2cATMega, NumberFormat.UInt16LE))
     }
 
+    function readSensorSigned(sensor: number): number
+    {
+        pins.i2cWriteNumber(i2cATMega, sensor, NumberFormat.Int8LE, false)
+        return (pins.i2cReadNumber(i2cATMega, NumberFormat.Int16LE))
+    }
+
 // Block to enable Bluetooth and disable FireLeds on accessories (doesn't affect built in Fireleds)
     /**
       * Enable/Disable Bluetooth support by disabling/enabling FireLeds
       * @param enable enable or disable Blueetoth
     */
     //% blockId="EnableBluetooth"
-    //% block="%enable|th254 Bluetooth"
+    //% block="%enable|th255 Bluetooth"
     //% blockGap=8
     export function enableBluetooth(enable: RXBluetooth)
     {
@@ -648,9 +664,7 @@ namespace theta
 	// 6 = Theta1, 7 = Theta2
         if (boardRevision == -1)	// first time requesting
 	{
-	    let revisions = pins.i2cReadNumber(i2cATMega, NumberFormat.UInt16LE, false)
-	    boardRevision = (revisions >> 8) & 0xff
-	    firmwareRevision = revisions & 0xff
+	    getCode()
 	    if(boardRevision == 7) // Theta2
 	    {
 		pidEnable = true
@@ -660,30 +674,25 @@ namespace theta
         return boardRevision
     }
 
+    function getCode()	// this always gets the codes
+    {
+	    let revisions = pins.i2cReadNumber(i2cATMega, NumberFormat.UInt16LE, false)
+	    boardRevision = (revisions >> 8) & 0xff
+	    firmwareRevision = revisions & 0xff
+    }
+
+
     /**
       * Get firmware revision
       */
     //% blockId="getFirmwareRevision"
     //% block="firmware revision"
     //% weight=60
-    //% subcategory=Theta_Model
+    //% subcategory=Advanced
     export function getFirmwareRevision(): number
     {
-	getBoardRevision()
+	getCode()
         return firmwareRevision
-    }
-
-    /**
-      * Set FireLeds control method
-      * @param fireCon are the FireLeds controlled by Microbit or ATMega
-      */
-    //% blockId="setFireControl"
-    //% block="FireLeds controlled by%fireCon"
-    //% weight=50
-    //% subcategory=Theta_Model
-    export function setFireControl(fireCon: RXFireControl): void
-    {
-        fireControl = fireCon
     }
 
 // Motor Blocks
@@ -717,12 +726,13 @@ namespace theta
 	{
 	    if(lastCommand!=cGO || lastDirection!=direction || lastSpeed!=speed)
 		sendCommand2(DRIVE, (direction == RXDirection.Reverse) ? -speed : speed)
-	    lastCommand = cGO
+	    pidActive = true
 	    lastDirection = direction
 	    lastSpeed = speed
 	}
 	else
             motorMove(RXMotor.Both, direction, speed)
+	lastCommand = cGO
     }
 
     /**
@@ -759,7 +769,7 @@ namespace theta
 	{
 	    if(lastCommand!=cSPIN || lastSDirection!=direction || lastSpeed!=speed)
 		sendCommand2(SPIN, (direction == RXRobotDirection.Right) ? -speed : speed)
-	    lastCommand = cSPIN
+	    pidActive = true
 	    lastSDirection = direction
 	    lastSpeed = speed
 	}
@@ -776,6 +786,7 @@ namespace theta
 		motorMove(RXMotor.Right, RXDirection.Reverse, speed)
             }
 	}
+	lastCommand = cSPIN
     }
 
     /**
@@ -806,14 +817,9 @@ namespace theta
     //% blockGap=8
     export function robotStop(mode: RXStopMode): void
     {
-        let stopMode = 0
-        if (mode == RXStopMode.Brake)
-            stopMode = 1
+        let stopMode = (mode == RXStopMode.Brake) ? 1 : 0
 	if(isTheta2())
-	{
 	    sendCommand2(STOP, stopMode)
-	    lastCommand = cSTOP
-	}
 	else
 	{
             pins.digitalWritePin(lMotorD0, stopMode)
@@ -821,6 +827,8 @@ namespace theta
             pins.digitalWritePin(rMotorD0, stopMode)
             pins.digitalWritePin(rMotorD1, stopMode)
 	}
+	lastCommand = cSTOP
+        pidActive = false
     }
 
     /**
@@ -844,7 +852,7 @@ namespace theta
 	if(isTheta2())
 	{
 	    sendCommand4(DIRECTMODE, speed, direction, motor) // for compatabilty only, no PID control
-	    lastCommand = cDIRECT
+	    pidActive = false
 	}
 	else
 	{
@@ -880,6 +888,7 @@ namespace theta
                 }
             }
 	}
+	lastCommand = cDIRECT
     }
 
     /**
@@ -956,10 +965,17 @@ namespace theta
     {
 	if(isTheta2())
 	{
+	    if(distance < 0)
+	    {
+		distance = -distance
+		speed = -speed
+	    }
 	    sendCommand4(DRIVEDIST, (direction == RXDirection.Reverse) ? -speed : speed, distance & 0xff, distance >> 8)
-	    lastCommand = cGOCM
 	    // wait for function complete
+	    pidActive = true
+            lastCommand = cGOCM
 	    waitForAck()
+	    pidActive = false
 	}
     }
 
@@ -978,10 +994,17 @@ namespace theta
     {
 	if(isTheta2())
 	{
+	    if(angle < 0)
+	    {
+		angle = -angle
+		speed = -speed
+	    }
 	    sendCommand4(SPINANGLE, (direction == RXRobotDirection.Right) ? -speed : speed, angle & 0xff, angle >> 8)
-	    lastCommand = cSPINDEG
 	    // wait for function complete
+	    pidActive = true
+            lastCommand = cSPINDEG
 	    waitForAck()
+	    pidActive = false
 	}
     }
 
@@ -1006,7 +1029,11 @@ namespace theta
 	    {
 		let aSpeed = ((direction == RXArcDirection.ReverseLeft) || (direction == RXArcDirection.ReverseRight)) ? -speed : speed
 		if((direction == RXArcDirection.ForwardRight) || (direction == RXArcDirection.ReverseRight))
-	    	    sendCommand4(ARC, aSpeed, radius & 0xff, radius >> 8)
+		{
+		    let aAngle = 32768
+		    sendCommand6(ARCANGLE, aSpeed, radius & 0xff, radius >> 8, aAngle & 0xff, aAngle >>8)
+		    // NB. do not wait for Ack
+		}
 		else  // now fudge the unterminated Arc command with a very long terminated arc
 		{
 		    let aAngle = 32767
@@ -1018,6 +1045,7 @@ namespace theta
 	    lastSpeed = speed
 	    lastRadius = radius
             lastCommand = cARC
+            pidActive = true
 	}
     }
 
@@ -1043,9 +1071,11 @@ namespace theta
 	    let aSpeed = ((direction == RXArcDirection.ReverseLeft) || (direction == RXArcDirection.ReverseRight)) ? -speed : speed
 	    let aAngle = ((direction == RXArcDirection.ForwardRight) || (direction == RXArcDirection.ReverseRight)) ? -angle : angle
 	    sendCommand6(ARCANGLE, aSpeed, radius & 0xff, radius >> 8, aAngle & 0xff, aAngle >>8)
-	    lastCommand = cARCDEG
 	    // wait for function complete
+	    pidActive = true
+	    lastCommand = cARCDEG
 	    waitForAck()
+	    pidActive = false
 	}
     }
 
@@ -1070,8 +1100,8 @@ namespace theta
 	    let speedR = (direction < 0) ? speed : ((100 - direction) * speed) / 100
 	    sendCommand4(DIRECTMODE, speedL, 0, 0)
 	    sendCommand4(DIRECTMODE, speedR, 0, 1)
-	    lastCommand = cSTEER
 	}
+	lastCommand = cSTEER
     }
 
     /**
@@ -1087,18 +1117,23 @@ namespace theta
     {
         let enPid = enable ? 1 : 0
 	if(isTheta2())
-	    sendCommand2(PIDENABLE, enPid)
-	pidEnable = enable
+	    pidEnable = enable
+	    //sendCommand2(PIDENABLE, enPid)
     }
 
     function readPulses(sensor: number): number
     {
-	let loVal=0
-	let hiVal=0
-	let longVal=0
-	loVal = readSensor(sensor)
-	hiVal = readSensor(sensor+1)
-	return loVal + (hiVal << 16)
+	if(isTheta2())
+	{
+	    let loVal=0
+	    let hiVal=0
+	    let longVal=0
+	    loVal = readSensor(sensor)
+	    hiVal = readSensor(sensor+1)
+	    return loVal + (hiVal << 16)
+	}
+	else
+	    return 0
     }
 
     /**
@@ -1112,17 +1147,23 @@ namespace theta
     //% group=Motors
     export function wheelSensor(sensor: RXPulseSensor, unit: RXSensorUnit): number
     {
-	let longVal=0
-	if(sensor == RXPulseSensor.Left)
-	    longVal = readPulses(LPULSEL)
-	else
-	    longVal = readPulses(RPULSEL)
-	switch(unit)
+	if(isTheta2())
 	{
-	    case RXSensorUnit.Millimeters: return Math.round(longVal / 10.05); break
-	    case RXSensorUnit.Inches: return Math.round(longVal / 255.27); break
-	    default: return longVal; break
+	    let longVal=0
+	    if(sensor == RXPulseSensor.Left)
+		longVal = readPulses(LPULSEL)
+	    else
+		longVal = readPulses(RPULSEL)
+	    switch(unit)
+	    {
+		case RXSensorUnit.Millimeters: return Math.round(longVal / 10.05); break
+		case RXSensorUnit.Centimeters: return Math.round(longVal / 103.6); break
+		case RXSensorUnit.Inches: return Math.round(longVal / 255.27); break
+		default: return longVal; break
+	    }
 	}
+	else
+	    return 0
     }
 
     /**
@@ -1134,9 +1175,14 @@ namespace theta
     //% group=Motors
     export function turnAngle(): number
     {
-	let lVal = readPulses(LPULSEL)
-	let rVal = readPulses(RPULSEL)
-	return Math.round((rVal - lVal) / 19.5)
+	if(isTheta2())
+	{
+	    let lVal = readPulses(LPULSEL)
+	    let rVal = readPulses(RPULSEL)
+	    return Math.round((rVal - lVal) / 19.5)
+	}
+	else
+	    return 0
     }
 
     /**
@@ -1149,7 +1195,24 @@ namespace theta
     //% group=Motors
     export function resetWheelSensors(sensor: RXMotor): void
     {
-	sendCommand2(RESETWHEEL, sensor)
+	if(isTheta2())
+	    sendCommand2(RESETWHEEL, sensor)
+    }
+
+    /**
+      * Check the last PID command encoder error value
+      * @param encoder left or right wheel encoder
+      */
+    //% blockId="RXPIDError" block="last %encoder|encoder error"
+    //% weight=25
+    //% subcategory=Theta2
+    //% group="PID Control"
+    export function lastEncoderError(encoder: RXPulseSensor): number
+    {
+	if(isTheta2())
+	    return readSensorSigned(encoder + LASTERRL)
+	else
+	    return 0
     }
 
     /**
@@ -1163,13 +1226,108 @@ namespace theta
     //% trimDistance.min=-100 trimDistance.max=100
     //% trimAngle.min=-100 trimAngle.max=100
     //% subcategory=Theta2
-    //% group=Motors
+    //% group=Advanced
     export function motorTrim(trimDistance: number, trimAngle: number): void
     {
-	let dTrim = clamp(trimDistance, -100, 100)
-	let aTrim = clamp(trimAngle, -100, 100)
-	sendCommand3(SETTRIMS, dTrim, aTrim)
+	if(isTheta2())
+	{
+	    let dTrim = clamp(trimDistance, -100, 100)
+	    let aTrim = clamp(trimAngle, -100, 100)
+	    sendCommand3(SETTRIMS, dTrim, aTrim)
+	}
     }
+
+    /**
+      * Set PID constants
+      * @param kP proportional constant eg: 5
+      * @param kI integral constant eg: 0
+      * @param kD differential constant eg: 1
+      * @param kC comparison constant eg: 7
+      */
+    //% blockId="RXPidConstants"
+    //% block="PID constants kP%kP|kI%kI|kD%kD|kC%kC"
+    //% weight=90
+    //% inlineInputMode=inline
+    //% subcategory=Theta2
+    //% group=Advanced
+    export function pidConstants(kP: number, kI: number, kD: number, kC: number): void
+    {
+	if(isTheta2())
+	    sendCommand5(SETPIDCON, kP, kI, kD, kC)
+    }
+
+    /**
+      * Carry forward pulse counting errors to next movement
+      * @param flag turn the running total on or off
+      */
+    //% blockId="RXCarryForwardErrors"
+    //% block="carry forward errors%flag"
+    //% flag.shadow="toggleOnOff"
+    //% weight=80
+    //% subcategory=Theta2
+    //% group=Advanced
+    export function carryForwardErrors(flag: boolean): void
+    {
+	if(isTheta2())
+	{
+            let sum = flag ? 1 : 0
+	    sendCommand2(SUMERRORS, sum)
+	}
+    }
+ 
+    /**
+      * Clear the carry forward pulse counting errors
+      */
+    //% blockId="RXClearPidErrors"
+    //% block="clear PID errors"
+    //% weight=70
+    //% subcategory=Theta2
+    //% group=Advanced
+    export function clearPidErrors(): void
+    {
+	if(isPRO())
+	    sendCommand2(CLRERRORS, 0)
+    }
+
+    /**
+      * Set the stopping and braking thresholds in mm, and braking target speed
+      * @param sDistance distance from target to begin stopping eg: 4
+      * @param bDistance distance from target to begin braking eg: 20
+      * @param bSpeed target speed during braking eg: 20
+      */
+    //% blockId="RXStopThreshold"
+    //% block="stop in%sDistance|mm, brake in%bDistance|mm at speed%bSpeed"
+    //% weight=60
+    //% subcategory=Theta2
+    //% group=Advanced
+    export function stopThreshold(sDistance: number, bDistance: number, bSpeed: number): void
+    {
+	if(isTheta2())
+	    sendCommand4(STOPBRAKE, sDistance, bDistance, bSpeed)
+    }
+ 
+    /**
+      * Set the starting PWM minimum and maximum values
+      * @param pwmMin minimum starting PWM value eg: 60
+      * @param pwmMax maximum starting PWM value eg: 100
+      */
+    //% blockId="RXStartPWM"
+    //% block="starting PWM minimum%pwmMin|, maximum%pwmMax"
+    //% weight=50
+    //% subcategory=Theta2
+    //% group=Advanced
+    export function setStartPWM(pwmMin: number, pwmMax: number): void
+    {
+	if(isTheta2())
+	{
+	    pwmMin = clamp(pwmMin, 0 , 255)
+	    pwmMax = clamp(pwmMax, 0 , 255)
+	    sendCommand3(STARTPWM, pwmMin, pwmMax)
+	}
+    }
+ 
+
+// LINE SENSORS
 
     /**
       * Read the line sensors in digital mode. Returns True (black line detected) or False
@@ -1248,8 +1406,11 @@ namespace theta
     //% group=InfraRed
     export function onIREvent(event: RXirKeys, handler: Action)
     {
-        irCore.initEvents(irPin)
-        control.onEvent(irEvent, <number>event, handler)
+	if(isTheta2())
+	{
+            irCore.initEvents(irPin)
+            control.onEvent(irEvent, <number>event, handler)
+	}
     }
 
     /**
@@ -1262,7 +1423,10 @@ namespace theta
     //% group=InfraRed
     export function irKey(key: RXirNoAny): boolean
     {
-        return (irCore.LastCode() == key)
+	if(isTheta2())
+            return (irCore.LastCode() == key)
+	else
+	    return false
     }
 
     /**
@@ -1275,7 +1439,10 @@ namespace theta
     //% group=InfraRed
     export function irCode(): number
     {
-	return irCore.LastCode()
+	if(isTheta2())
+	    return irCore.LastCode()
+	else
+	    return 0
     }
 
     /**
@@ -1288,7 +1455,10 @@ namespace theta
     //% group=InfraRed
     export function irKeyCode(key: RXirNoAny): number
     {
-	return key
+	if(isTheta2())
+	    return key
+	else
+	    return 0
     }
 
     /**
@@ -1609,6 +1779,38 @@ namespace theta
 	}
 	else
             pins.digitalWritePin(DigitalPin.P8, buzz)
+    }
+
+    /**
+      * Sound buzzer for selected time
+      * @param duration time for buzzer to sound in ms eg: 400
+      */
+    //% blockId="RXsoundms" block="sound buzzer for%duration|ms"
+    //% weight=95
+    //% subcategory="Inputs & Outputs"
+    export function buzzTime(duration: number): void
+    {
+        buzz(true)
+	basic.pause(duration)
+	buzz(false)
+    }
+
+    /**
+      * Set the buzzer volume
+      */
+    //% blockId="RXVolume"
+    //% block="set buzzer volume%volume"
+    //% weight=90
+    //% subcategory=Theta2
+    //% group=General
+    export function setVolume(volume: BBBuzzVolume): void
+    {
+	if(isPRO())
+	{
+	    music.setVolume(volume)
+	    if(control.hardwareVersion() == '1')
+		music.stopAllSounds()
+	}
     }
 
     /**
