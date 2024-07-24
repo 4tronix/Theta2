@@ -392,6 +392,7 @@ namespace theta
     let leftBias = 0
     let rightBias = 0
     let pidEnable = true
+    let pidActive = false
     let _model = RXModel.Auto
     let boardRevision = -1
     let firmwareRevision = 0
@@ -592,7 +593,7 @@ namespace theta
       * @param enable enable or disable Blueetoth
     */
     //% blockId="EnableBluetooth"
-    //% block="%enable|th255 Bluetooth"
+    //% block="%enable|th256 Bluetooth"
     //% blockGap=8
     export function enableBluetooth(enable: RXBluetooth)
     {
@@ -1285,7 +1286,7 @@ namespace theta
     //% group=Advanced
     export function clearPidErrors(): void
     {
-	if(isPRO())
+	if(isTheta2())
 	    sendCommand2(CLRERRORS, 0)
     }
 
@@ -1803,9 +1804,9 @@ namespace theta
     //% weight=90
     //% subcategory=Theta2
     //% group=General
-    export function setVolume(volume: BBBuzzVolume): void
+    export function setVolume(volume: RXBuzzVolume): void
     {
-	if(isPRO())
+	if(isTheta2())
 	{
 	    music.setVolume(volume)
 	    if(control.hardwareVersion() == '1')
