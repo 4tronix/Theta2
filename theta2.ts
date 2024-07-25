@@ -604,7 +604,7 @@ namespace theta
       * @param enable enable or disable Blueetoth
     */
     //% blockId="EnableBluetooth"
-    //% block="%enable|th264 Bluetooth"
+    //% block="%enable|th265 Bluetooth"
     //% blockGap=8
     export function enableBluetooth(enable: RXBluetooth)
     {
@@ -1705,7 +1705,6 @@ namespace theta
     {
         let cmd = IO_0_CFG + pin
 	sendCommand2(cmd, mode)
-	basic.showNumber(cmd)
     }
 
     /**
