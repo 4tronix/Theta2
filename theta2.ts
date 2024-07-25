@@ -604,7 +604,7 @@ namespace theta
       * @param enable enable or disable Blueetoth
     */
     //% blockId="EnableBluetooth"
-    //% block="%enable|th262 Bluetooth"
+    //% block="%enable|th263 Bluetooth"
     //% blockGap=8
     export function enableBluetooth(enable: RXBluetooth)
     {
@@ -1694,71 +1694,46 @@ namespace theta
 // ATMEGA328 I/O Pins. 4 digital pins can be used as inputs or outputs - not available on Theta2
     /**
     * Set mode of ATMega IO Pins
-    * @param pin select 0 to 3
+    * @param pin GPIO pin select 0 to 3
     * @param mode Can be one of Digital In, Digital Out, Servo or PWM Out
     */
-    //% blockId="SetIOMode" block="set IO mode of pin%pin|to%mode"
+    //% blockId="SetIOMode" block="set IO mode of %pin|to%mode"
     //% weight=40
-    //% pin.minimum=0
-    //% pin.maximum=3
     //% subcategory="Inputs & Outputs"
     //% group="IO Pins"
-    export function setIOMode(pin: number, mode: RXIOMode): void
+    export function setIOMode(pin: RXGPIOPins, mode: RXIOMode): void
     {
-        let cmd = 0
-	if(! isTheta2())
-	{
-            switch(pin)
-            {
-                case 0: cmd = IO_0_CFG; break
-                case 1: cmd = IO_1_CFG; break
-                case 2: cmd = IO_2_CFG; break
-                case 3: cmd = IO_3_CFG; break
-            }
-	    sendCommand2(cmd, mode)
-	}
+        let cmd = IO_0_CFG + pin
+	sendCommand2(cmd, mode)
     }
 
     /**
     * Read ATMega IO Pin
     * @param pin GPIO pin select 0 to 3
     */
-    //% blockId="ReadIOPin" block="read pin%pin"
+    //% blockId="ReadIOPin" block="read GPIO %pin"
     //% weight=30
     //% subcategory="Inputs & Outputs"
     //% group="IO Pins"
     export function readIOPin(pin: RXGPIOPins): number
     {
         let cmd = INP0 + pin
-        if((cmd != 0) && (! isTheta2()))
-	    return readSensor(cmd)
-        else
-            return 0
+	return readSensor(cmd)
     }
 
     /**
     * Write ATMega IO Pin
     * @param value data to write to output pin
-    * @param pin select 0 to 3
+    * @param pin GPIO pin select 0 to 3
     */
-    //% blockId="WriteIOPin" block="write %value|to pin%pin"
+    //% blockId="WriteIOPin" block="write %value|to %pin"
     //% weight=20
-    //% pin.minimum=0
-    //% pin.maximum=3
     //% subcategory="Inputs & Outputs"
     //% group="IO Pins"
-    export function writeIOPin(value: number, pin: number): void
+    export function writeIOPin(value: number, pin: RXGPIOPins): void
     {
-        let cmd = 0
-        switch(pin)
-        {
-            case 0: cmd = IO_0_DATA; break
-            case 1: cmd = IO_1_DATA; break
-            case 2: cmd = IO_2_DATA; break
-            case 3: cmd = IO_3_DATA; break
-        }
-        if((cmd != 0) && (! isTheta2()))
-	    sendCommand2(cmd, value)
+        let cmd = IO_0_DATA + pin
+	sendCommand2(cmd, value)
     }
 
 // General I/O
