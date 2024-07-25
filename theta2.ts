@@ -368,6 +368,17 @@ enum RXBuzzVolume
 }
 
 /**
+  * GPIO Pin Numbers
+  */
+enum RXGPIOPins
+{
+  Pin0=0,
+  Pin1=1,
+  Pin2=2,
+  Pin3=3
+}
+
+/**
  * Custom blocks
  */
 
@@ -593,7 +604,7 @@ namespace theta
       * @param enable enable or disable Blueetoth
     */
     //% blockId="EnableBluetooth"
-    //% block="%enable|th261 Bluetooth"
+    //% block="%enable|th262 Bluetooth"
     //% blockGap=8
     export function enableBluetooth(enable: RXBluetooth)
     {
@@ -1710,24 +1721,15 @@ namespace theta
 
     /**
     * Read ATMega IO Pin
-    * @param pin select 0 to 3
+    * @param pin GPIO pin select 0 to 3
     */
     //% blockId="ReadIOPin" block="read pin%pin"
     //% weight=30
-    //% pin.minimum=0
-    //% pin.maximum=3
     //% subcategory="Inputs & Outputs"
     //% group="IO Pins"
-    export function readIOPin(pin: number): number
+    export function readIOPin(pin: RXGPIOPins): number
     {
-        let cmd = 0
-        switch(pin)
-        {
-            case 0: cmd = INP0; break
-            case 1: cmd = INP1; break
-            case 2: cmd = INP2; break
-            case 3: cmd = INP3; break
-        }
+        let cmd = INP0 + pin
         if((cmd != 0) && (! isTheta2()))
 	    return readSensor(cmd)
         else
