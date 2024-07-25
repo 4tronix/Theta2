@@ -604,7 +604,7 @@ namespace theta
       * @param enable enable or disable Blueetoth
     */
     //% blockId="EnableBluetooth"
-    //% block="%enable|th263 Bluetooth"
+    //% block="%enable|th264 Bluetooth"
     //% blockGap=8
     export function enableBluetooth(enable: RXBluetooth)
     {
@@ -1691,7 +1691,7 @@ namespace theta
 
 // Built-in Sensors - Inputs and Outputs
 
-// ATMEGA328 I/O Pins. 4 digital pins can be used as inputs or outputs - not available on Theta2
+// ATMEGA328 I/O Pins. 4 digital pins can be used as inputs or outputs
     /**
     * Set mode of ATMega IO Pins
     * @param pin GPIO pin select 0 to 3
@@ -1705,6 +1705,7 @@ namespace theta
     {
         let cmd = IO_0_CFG + pin
 	sendCommand2(cmd, mode)
+	basic.showNumber(cmd)
     }
 
     /**
