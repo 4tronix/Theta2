@@ -372,7 +372,7 @@ enum RXBuzzVolume
  */
 
 //% weight=50 color=#e7660b icon="\uf139"
-//% groups='["New style blocks","Basic","Advanced","Special","Ultrasonic","Line Sensor","5x5 Matrix","BitFace","OLED 128x64","Old style blocks"]'
+//% groups='["Motors","PID Control","Line Sensors","Infrared","Outputs","Basic","Advanced","Special","Ultrasonic","Line Sensor","5x5 Matrix","BitFace","OLED 128x64","IO Pins","Sensors","EEROM"]'
 namespace theta
 {
     let fireBand: fireled.Band
@@ -593,7 +593,7 @@ namespace theta
       * @param enable enable or disable Blueetoth
     */
     //% blockId="EnableBluetooth"
-    //% block="%enable|th260 Bluetooth"
+    //% block="%enable|th261 Bluetooth"
     //% blockGap=8
     export function enableBluetooth(enable: RXBluetooth)
     {
@@ -689,7 +689,8 @@ namespace theta
     //% blockId="getFirmwareRevision"
     //% block="firmware revision"
     //% weight=60
-    //% subcategory=Advanced
+    //% subcategory=Theta2
+    //% group=Advanced
     export function getFirmwareRevision(): number
     {
 	getCode()
@@ -1888,7 +1889,15 @@ namespace theta
     //% group=Sensors
     export function readDial(): number
     {
-        return readSensor(DIAL)
+	if(isTheta2() && firmwareRevision>=10)
+	{
+    	    led.enable(false)
+	    let dial = pins.analogReadPin(AnalogPin.P3)
+	    led.enable(true)
+	    return dial
+	}
+	else
+	    return readSensor(DIAL)
     }
 
     /**
